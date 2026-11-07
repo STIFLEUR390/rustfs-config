@@ -1,0 +1,105 @@
+<script setup lang="ts">
+import type {ConnectionStatus} from '~/composables/useInstances'
+
+const {t, locale, setLocale} = useI18n()
+const {instances, activeInstanceId, selectInstance} = useInstances()
+const {activeBucketName, buckets, selectBucket} = useBucket()
+
+const languages = [
+    {code: 'fr', label: 'FR'},
+    {code: 'en', label: 'EN'},
+]
+
+const statusClass: Record<ConnectionStatus, string> = {
+    ok: 'bg-success',
+    error: 'bg-error',
+    unknown: 'bg-dimmed',
+}
+
+// Pick the first bucket of the instance so the panel is never half-empty.
+function openInstance(id: string) {
+    selectInstance(id)
+    const first = buckets(id)[0]
+    selectBucket(first ? first.name : null)
+}
+</script>
+
+<template>
+    <div class="flex h-screen overflow-hidden bg-default text-default">
+        <aside class="flex w-64 shrink-0 flex-col border-r border-default bg-elevated/40">
+            <div class="flex h-14 items-center gap-2 border-b border-default px-4">
+                <UIcon name="i-lucide-boxes" class="size-5 text-primary"/>
+                <span class="font-semibold">{{ t('app.name') }}</span>
+            </div>
+
+            <nav class="flex-1 space-y-1 overflow-y-auto p-2">
+                <div v-for="instance in instances" :key="instance.id">
+                    <UButton
+                        block
+                        color="neutral"
+                        :variant="instance.id === activeInstanceId ? 'soft' : 'ghost'"
+                        class="justify-start"
+                        @click="openInstance(instance.id)"
+                    >
+                        <UIcon name="i-lucide-server" class="size-4 shrink-0"/>
+                        <span class="truncate">{{ instance.label }}</span>
+                        <span
+                            class="ml-auto size-2 shrink-0 rounded-full"
+                            :class="statusClass[instance.status]"
+                            :title="t(`status.${instance.status}`)"
+                        />
+                    </UButton>
+
+                    <div v-if="instance.id === activeInstanceId" class="mt-1 ml-4 space-y-0.5">
+                        <UButton
+                            v-for="bucket in buckets(instance.id)"
+                            :key="bucket.name"
+                            block
+                            size="sm"
+                            color="neutral"
+                            :variant="bucket.name === activeBucketName ? 'soft' : 'ghost'"
+                            class="justify-start"
+                            @click="selectBucket(bucket.name)"
+                        >
+                            <UIcon name="i-lucide-database" class="size-4 shrink-0"/>
+                            <span class="truncate">{{ bucket.name }}</span>
+                        </UButton>
+                        <p v-if="!buckets(instance.id).length" class="px-2 py-1 text-xs text-muted">
+                            {{ t('sidebar.noBuckets') }}
+                        </p>
+                    </div>
+                </div>
+            </nav>
+
+            <div class="space-y-2 border-t border-default p-3">
+                <UButton
+                    block
+                    color="neutral"
+                    variant="outline"
+                    icon="i-lucide-plus"
+                    :label="t('sidebar.addInstance')"
+                    :title="t('actions.soon')"
+                    disabled
+                />
+                <div class="flex items-center justify-between">
+                    <span class="text-xs text-muted">{{ t('app.name') }}</span>
+                    <div class="flex gap-1">
+                        <UButton
+                            v-for="language in languages"
+                            :key="language.code"
+                            size="xs"
+                            :color="locale === language.code ? 'primary' : 'neutral'"
+                            :variant="locale === language.code ? 'solid' : 'ghost'"
+                            :label="language.label"
+                            @click="setLocale(language.code)"
+                        />
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <main class="min-w-0 flex-1 overflow-y-auto">
+            <slot/>
+        </main>
+    </div>
+</template>

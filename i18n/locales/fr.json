@@ -1,0 +1,48 @@
+{
+  "app": {
+    "name": "RustFS Config"
+  },
+  "sidebar": {
+    "addInstance": "Ajouter une instance",
+    "noBuckets": "Aucun bucket"
+  },
+  "status": {
+    "ok": "Connecté",
+    "error": "Erreur de connexion",
+    "unknown": "Non testé"
+  },
+  "tabs": {
+    "overview": "Vue d'ensemble",
+    "objects": "Objets",
+    "access": "Accès",
+    "policy": "Policy",
+    "lifecycle": "Lifecycle",
+    "env": ".env"
+  },
+  "overview": {
+    "instance": "Instance",
+    "endpoint": "Endpoint",
+    "region": "Région",
+    "pathStyle": "Path-style",
+    "yes": "oui",
+    "no": "non",
+    "bucket": "Bucket",
+    "publicPrefixes": "Préfixes publics",
+    "privatePrefixes": "Préfixes privés",
+    "lifecycle": "Expiration",
+    "days": "{n} jours",
+    "noLifecycle": "Aucune",
+    "connOk": "Connexion établie",
+    "connError": "Connexion impossible"
+  },
+  "actions": {
+    "prepareBucket": "Préparer un bucket",
+    "testAccess": "Tester l'accès",
+    "soon": "Disponible dans une prochaine étape"
+  },
+  "empty": {
+    "noBucket": "Sélectionnez un bucket dans la barre latérale",
+    "pendingTitle": "Pas encore disponible",
+    "pendingDescription": "Cet onglet sera branché sur le backend dans les prochaines étapes."
+  }
+}

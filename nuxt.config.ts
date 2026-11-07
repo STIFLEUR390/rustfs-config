@@ -16,6 +16,21 @@ export default defineNuxtConfig({
 
     css: ["~/assets/css/main.css"],
 
+    i18n: {
+        defaultLocale: "fr",
+        strategy: "no_prefix",
+        locales: [
+            {code: "fr", name: "Français", file: "fr.json"},
+            {code: "en", name: "English", file: "en.json"},
+        ],
+        detectBrowserLanguage: false,
+    },
+
+    // Static build: bundle the icons we use so the app works offline.
+    icon: {
+        clientBundle: {scan: true, sizeLimitKb: 256},
+    },
+
     compatibilityDate: "2026-01-20",
 
     // Enable SSG

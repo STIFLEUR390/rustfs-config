@@ -22,7 +22,10 @@ M0 validé (spec, nom, périmètre). M1 fait : backend Rust `src-tauri/src/{conf
 futur adaptateur CLI. Test d'intégration `src-tauri/tests/admin_integration.rs` vérifié contre RustFS local.
 Stockage local fait : `src-tauri/src/store.rs` (état non secret, écriture atomique) et
 `src-tauri/src/secrets.rs` (trousseau OS via `keyring`, clés `rc://instance/<id>` et
-`rc://credential/<id>`).
+`rc://credential/<id>`). Coquille UI faite : `app/layouts/default.vue` (sidebar instances/
+buckets, bascule FR/EN), `app/pages/index.vue` (6 onglets, états vides), composables
+`app/composables/useInstances.ts` et `useBucket.ts` (données factices + `invoke()`),
+CSP stricte dans `src-tauri/tauri.conf.json`.
 
 La couche Tauri est derrière la feature `gui` (défaut). Sur une machine sans GTK/WebKit :
 `cargo test --no-default-features` (voir `AGENTS.md`).
