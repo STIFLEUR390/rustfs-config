@@ -6,7 +6,7 @@ authors = ["you"]
 license = ""
 repository = ""
 edition = "2021"
-rust-version = "1.77.2"
+rust-version = "1.82"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
@@ -17,22 +17,55 @@ crate-type = ["staticlib", "cdylib", "rlib"]
 [build-dependencies]
 tauri-build = { version = "2.6.3", features = [ "config-json5" ] }
 
+[features]
+default = ["gui"]
+# Tauri shell (needs the Linux GTK/WebKit dev packages). Off for headless tests.
+gui = [
+    "dep:tauri",
+    "dep:tauri-plugin-log",
+    "dep:tauri-plugin-clipboard-manager",
+    "dep:tauri-plugin-os",
+    "dep:tauri-plugin-dialog",
+    "dep:tauri-plugin-opener",
+    "dep:tauri-plugin-fs",
+    "dep:tauri-plugin-notification",
+    "dep:tauri-plugin-process",
+    "dep:tauri-plugin-store",
+    "dep:tauri-plugin-decorum",
+    "dep:window-vibrancy",
+]
+
+[[bin]]
+name = "app"
+path = "src/main.rs"
+required-features = ["gui"]
+
 [dependencies]
 serde_json = "1.0"
 serde = { version = "1.0", features = ["derive"] }
 log = "0.4"
-tauri = { version = "2.11.6", features = [ "devtools", "config-json5"] }
-tauri-plugin-log = "2.9.2"
-tauri-plugin-clipboard-manager = "2.3.3"
-tauri-plugin-os = "2.3.2"
-tauri-plugin-dialog = "2.7.3"
-tauri-plugin-opener = "2.5.5"
-tauri-plugin-fs = { version = "2.5.2", features = [ "watch" ] }
-tauri-plugin-notification = "2.4.0"
-tauri-plugin-process = "2.3.1"
-tauri-plugin-store = "2.4.5"
+thiserror = "2"
+async-trait = "0.1"
+tokio = { version = "1", features = ["full"] }
+http = "1"
+reqwest = { version = "0.12", default-features = false, features = ["json", "rustls-tls"] }
+aws-credential-types = "1"
+aws-types = "1"
+aws-config = { version = "1", features = ["behavior-version-latest"] }
+aws-sdk-s3 = "1"
+aws-sigv4 = "1"
+tauri = { version = "2.11.6", features = [ "devtools", "config-json5"], optional = true }
+tauri-plugin-log = { version = "2.9.2", optional = true }
+tauri-plugin-clipboard-manager = { version = "2.3.3", optional = true }
+tauri-plugin-os = { version = "2.3.2", optional = true }
+tauri-plugin-dialog = { version = "2.7.3", optional = true }
+tauri-plugin-opener = { version = "2.5.5", optional = true }
+tauri-plugin-fs = { version = "2.5.2", features = [ "watch" ], optional = true }
+tauri-plugin-notification = { version = "2.4.0", optional = true }
+tauri-plugin-process = { version = "2.3.1", optional = true }
+tauri-plugin-store = { version = "2.4.5", optional = true }
 
 # Desktop-only (not compiled for iOS/Android)
 [target.'cfg(not(any(target_os = "android", target_os = "ios")))'.dependencies]
-tauri-plugin-decorum = "1.1.1"
-window-vibrancy = "0.8.1"
+tauri-plugin-decorum = { version = "1.1.1", optional = true }
+window-vibrancy = { version = "0.8.1", optional = true }

@@ -1,6 +1,15 @@
-#[cfg(desktop)]
+#[cfg(feature = "gui")]
 mod window_effects;
 
+pub mod admin;
+pub mod backend;
+#[cfg(feature = "gui")]
+pub mod commands;
+pub mod config;
+pub mod error;
+pub mod s3;
+
+#[cfg(feature = "gui")]
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     let builder = tauri::Builder::default()
@@ -11,7 +20,28 @@ pub fn run() {
         .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_clipboard_manager::init())
         .plugin(tauri_plugin_dialog::init())
-        .plugin(tauri_plugin_os::init());
+        .plugin(tauri_plugin_os::init())
+        .invoke_handler(tauri::generate_handler![
+            commands::test_connection,
+            commands::list_buckets,
+            commands::head_bucket,
+            commands::list_objects,
+            commands::put_object,
+            commands::get_object,
+            commands::delete_object,
+            commands::list_users,
+            commands::get_user,
+            commands::add_user,
+            commands::set_user_status,
+            commands::remove_user,
+            commands::list_policies,
+            commands::get_policy,
+            commands::add_policy,
+            commands::remove_policy,
+            commands::attach_policy,
+            commands::detach_policy,
+            commands::policy_entities,
+        ]);
 
     #[cfg(desktop)] let builder = builder.plugin(tauri_plugin_decorum::init()); // decorum (1/2)
 
