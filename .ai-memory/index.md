@@ -35,6 +35,14 @@ Commandes `instanceId`-scoped : `list_instance_buckets`, `list_instance_objects`
 `download_instance_object`, `delete_instance_object`. UI : `app/components/InstanceForm.vue`,
 `app/components/BucketDialog.vue`, onglet Objets dans `app/pages/index.vue`. Les credentials
 d'instance vivent au trousseau (`secrets::set_instance_credentials`), pas dans `store.json`.
+Moteur IAM fait : `src-tauri/src/iam.rs` génère les policies SPEC §7.1 (`rw`, `ro`,
+`rw-sans-suppression` avec `Deny`), crée `<bucket>-app`, attache
+(`set-user-or-group-policy`), fait tourner le secret (`add-user` remplace le secret de la même
+access key), révoque (detach → disable → remove-user, policy `rc-` supprimée seulement si plus
+aucun user), et adopte une clé existante sans la modifier. Secret généré côté Rust (40
+caractères), stocké au trousseau, renvoyé une seule fois. UI : `app/components/AccessPanel.vue`
+(onglet Accès) + `app/composables/useCredentials.ts`. Test d'intégration
+`src-tauri/tests/iam.rs` (créer → vérifier l'isolation → tourner → révoquer).
 
 La couche Tauri est derrière la feature `gui` (défaut). Sur une machine sans GTK/WebKit :
 `cargo test --no-default-features` (voir `AGENTS.md`).
@@ -56,6 +64,11 @@ La couche Tauri est derrière la feature `gui` (défaut). Sur une machine sans G
   qu'avec `PayloadChecksumKind::XAmzSha256`.
 - `keyring` 3 : utiliser `sync-secret-service` + `crypto-rust` (et non `linux-native`,
   qui passe par le keyring du noyau et ne survit pas au redémarrage).
+- RustFS renvoie la liste des noms de buckets à toute clé authentifiée, même sans
+  `ListAllMyBuckets` dans sa policy. L'isolation se vérifie sur l'accès aux objets d'un
+  autre bucket, pas sur les noms (SPEC §10 le tolère explicitement).
+- `add-user` avec une access key existante remplace son secret : c'est la rotation. L'ancien
+  secret est refusé immédiatement.
 
 Voir aussi `docs/RUSTFS-NOTES.md` §6 (remplacement de bucket policy, `readonly` sans
 `ListBucket`, `PUT` refusé par fermeture de connexion, SSE-S3 sans clé maître, test

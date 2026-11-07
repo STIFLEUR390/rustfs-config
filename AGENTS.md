@@ -19,10 +19,12 @@ même changement. Ne jamais élargir le périmètre sans tâche Kaneo associée.
 ## État du projet
 
 M0 validé (spec, nom, périmètre). M1 socle livré : clients S3 et admin SigV4, trousseau
-`keyring`, store local, coquille UI Nuxt. M2 en cours : instances (CRUD, test, qualification
+`keyring`, store local, coquille UI Nuxt. M2 livré : instances (CRUD, test, qualification
 de clé) et explorateur buckets/objets (listing par préfixe, upload, téléchargement,
-suppression). Les commandes Tauri ne reçoivent jamais un secret pour les opérations
-courantes : elles prennent `instanceId` et lisent la clé dans le trousseau.
+suppression). M3 en cours : moteur IAM (users scopés, policies `rw`/`ro`/
+`rw-sans-suppression`, rotation, révocation, adoption). Les commandes Tauri ne reçoivent
+jamais un secret pour les opérations courantes : elles prennent `instanceId` et lisent la
+clé dans le trousseau.
 
 ## Stack
 
@@ -193,6 +195,8 @@ Règles de suivi :
 | `thiserror` | erreurs typées |
 | `keyring` | trousseau OS (`sync-secret-service` + `crypto-rust` sur Linux) |
 | `dirs` | chemin du `store.json` |
+| `rand` | génération des secrets de credential |
+| `time` | horodatage ISO des credentials |
 | `async-trait` | trait `RustfsBackend` |
 
 Encore optionnel si le besoin apparaît : `uuid`, `tauri-specta`/`specta` (IPC typé),

@@ -5,9 +5,10 @@ use crate::backend::{NativeBackend, RustfsBackend};
 use crate::browser;
 use crate::config::Connection;
 use crate::error::AppResult;
+use crate::iam::{self, IssuedCredential};
 use crate::instances::{self, InstanceTest};
 use crate::s3::{ObjectEntry, ObjectPage, S3Client};
-use crate::store::Instance;
+use crate::store::{Credential, Instance};
 
 #[derive(Debug, Clone, Serialize)]
 #[serde(rename_all = "camelCase")]
@@ -280,4 +281,38 @@ pub async fn delete_instance_object(
     instance_s3(&instance_id)?
         .delete_object(&bucket, &key)
         .await
+}
+
+#[tauri::command]
+pub fn list_credentials(instance_id: String, bucket: String) -> AppResult<Vec<Credential>> {
+    iam::list(&instance_id, &bucket)
+}
+
+#[tauri::command]
+pub async fn create_credential(
+    instance_id: String,
+    bucket: String,
+    mode: String,
+    access_key: Option<String>,
+) -> AppResult<IssuedCredential> {
+    iam::create(&instance_id, &bucket, &mode, access_key).await
+}
+
+#[tauri::command]
+pub async fn adopt_credential(
+    instance_id: String,
+    bucket: String,
+    access_key: String,
+) -> AppResult<IssuedCredential> {
+    iam::adopt(&instance_id, &bucket, &access_key).await
+}
+
+#[tauri::command]
+pub async fn rotate_credential(instance_id: String, credential_id: String) -> AppResult<String> {
+    iam::rotate(&instance_id, &credential_id).await
+}
+
+#[tauri::command]
+pub async fn revoke_credential(instance_id: String, credential_id: String) -> AppResult<()> {
+    iam::revoke(&instance_id, &credential_id).await
 }

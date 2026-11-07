@@ -342,6 +342,10 @@ function refresh() {
                         />
                     </div>
 
+                    <div v-else-if="tab === 'access'">
+                        <AccessPanel :instance-id="activeInstance.id" :bucket="activeBucketName"/>
+                    </div>
+
                     <div
                         v-else
                         class="mt-2 flex flex-col items-center gap-2 rounded-lg border border-default py-16 text-center"

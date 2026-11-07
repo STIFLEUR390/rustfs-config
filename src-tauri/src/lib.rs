@@ -8,6 +8,7 @@ pub mod browser;
 pub mod commands;
 pub mod config;
 pub mod error;
+pub mod iam;
 pub mod instances;
 pub mod qualify;
 pub mod s3;
@@ -62,6 +63,11 @@ pub fn run() {
             commands::upload_instance_object,
             commands::download_instance_object,
             commands::delete_instance_object,
+            commands::list_credentials,
+            commands::create_credential,
+            commands::adopt_credential,
+            commands::rotate_credential,
+            commands::revoke_credential,
         ]);
 
     #[cfg(desktop)]
