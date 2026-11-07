@@ -59,6 +59,14 @@ apply, `public_prefixes` et `managed.bucketPolicy` sont enregistrés dans le sto
 `bucket_state` pour préremplir l'UI, `plan_bucket_policy`, `apply_bucket_policy` ; panneau
 `app/components/PolicyPanel.vue` (onglet Policy), i18n `policy.*`. Test
 `src-tauri/tests/policy.rs` : deux apply ne changent rien et un statement étranger survit.
+Lifecycle/versioning/CORS faits : `src-tauri/src/lifecycle.rs` gère les règles
+`rc-expire-<slug>` + purge multipart (`rc-abort-incomplete-multipart`, 7 j), fusionne en
+conservant les règles étrangères, active/suspend le versioning et pose une règle CORS.
+`plan_bucket_config` / `apply_bucket_config` (overwrite CORS = `cors_overwrite_confirmation`
+sauf `confirmCors`), sonde `_rc-probe-lifecycle.txt` avec en-tête `Expiration` supprimée
+dans tous les cas. UI : `app/components/LifecyclePanel.vue` (onglet Lifecycle), i18n
+`lifecycle.*`. Test `src-tauri/tests/lifecycle.rs` : idempotence règles + versioning,
+conflit CORS confirmé, aucune sonde restante.
 
 La couche Tauri est derrière la feature `gui` (défaut). Sur une machine sans GTK/WebKit :
 `cargo test --no-default-features` (voir `AGENTS.md`).
@@ -85,6 +93,8 @@ La couche Tauri est derrière la feature `gui` (défaut). Sur une machine sans G
   autre bucket, pas sur les noms (SPEC §10 le tolère explicitement).
 - `add-user` avec une access key existante remplace son secret : c'est la rotation. L'ancien
   secret est refusé immédiatement.
+- Un bucket versionné ne se supprime qu'après avoir purgé versions ET delete markers ; RustFS
+  ne retire qu'une version par clé et par appel `delete-objects` (boucler jusqu'à vide).
 
 Voir aussi `docs/RUSTFS-NOTES.md` §6 (remplacement de bucket policy, `readonly` sans
 `ListBucket`, `PUT` refusé par fermeture de connexion, SSE-S3 sans clé maître, test

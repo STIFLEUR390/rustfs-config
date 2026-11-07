@@ -53,13 +53,20 @@ async function load() {
         await preview()
         if (plan.value) {
             versioning.value = plan.value.versioning === 'Enabled'
-            const remote = plan.value.corsBefore[0] as CorsSpec | undefined
+            const remote = plan.value.corsBefore[0] as
+                | {
+                      AllowedOrigins?: string[]
+                      AllowedMethods?: string[]
+                      AllowedHeaders?: string[]
+                      MaxAgeSeconds?: number | null
+                  }
+                | undefined
             if (remote) {
                 corsEnabled.value = true
-                origins.value = (remote.origins ?? []).join(', ')
-                corsMethods.value = remote.methods ?? []
-                headers.value = (remote.headers ?? []).join(', ')
-                maxAge.value = remote.maxAgeSeconds ? String(remote.maxAgeSeconds) : ''
+                origins.value = (remote.AllowedOrigins ?? []).join(', ')
+                corsMethods.value = (remote.AllowedMethods ?? []).map((method) => method.toUpperCase())
+                headers.value = (remote.AllowedHeaders ?? []).join(', ')
+                maxAge.value = remote.MaxAgeSeconds ? String(remote.MaxAgeSeconds) : ''
             }
         }
     } catch (cause) {
