@@ -1,0 +1,46 @@
+name: ci
+
+on:
+  push:
+    branches: [dev, main]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: dtolnay/rust-toolchain@stable
+
+      - uses: swatinem/rust-cache@v2
+        with:
+          workspaces: "./src-tauri -> target"
+
+      - name: Install test dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y gnome-keyring dbus-x11
+
+      - name: Start RustFS
+        run: |
+          docker compose -f docker-compose.test.yml up -d
+          for i in $(seq 1 60); do
+            curl -sf http://127.0.0.1:9200 -o /dev/null && exit 0
+            sleep 1
+          done
+          docker compose -f docker-compose.test.yml logs
+          exit 1
+
+      - name: Tests
+        env:
+          RUSTFS_TEST_ENDPOINT: http://127.0.0.1:9200
+          RUSTFS_TEST_ACCESS_KEY: rustfsadmin
+          RUSTFS_TEST_SECRET_KEY: rustfsadmin
+          RC_TEST_KEYRING: "1"
+        run: |
+          cd src-tauri
+          dbus-run-session -- bash -c 'echo -n "" | gnome-keyring-daemon --unlock --components=secrets >/dev/null; cargo test --no-default-features --all-targets'
+
+      - name: Lint
+        run: cd src-tauri && cargo clippy --all-targets --no-default-features -- -D warnings

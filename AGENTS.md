@@ -27,7 +27,9 @@ automatiques (`verify.rs`). M4 livré : bucket policy (lecture publique par pré
 fusion par `Sid`, diff) et lifecycle/versioning/CORS. M5 livré : générateur `.env`
 (Laravel, Node, AWS CLI, écriture 0600). M6 livré : parcours guidé, identité
 (`RustFS Config` / `fr.rustfsconfig.app`), permissions Tauri minimales, CI de release.
-QA en cours.
+QA livré : suite d'intégration contre l'image épinglée `rustfs/rustfs:1.0.4`
+(`docker-compose.test.yml`), CI sur chaque PR (`.github/workflows/ci.yml`), guide
+utilisateur (`docs/GUIDE.md`) et CHANGELOG.
 Les commandes Tauri ne reçoivent
 jamais un secret pour les opérations courantes : elles prennent `instanceId` et lisent la
 clé dans le trousseau.

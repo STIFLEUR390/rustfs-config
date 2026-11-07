@@ -1,0 +1,23 @@
+# Changelog
+
+Toutes les évolutions notables de RustFS Config. Format : [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/), versions [SemVer](https://semver.org/lang/fr/).
+
+## [0.1.0] — 2026-11-07
+
+### Ajouté
+
+- Instances RustFS : ajout, édition, suppression, test de connexion et qualification de clé (root, admin, applicative, invalide).
+- Explorateur buckets/objets : listing par préfixe, création/suppression de bucket, upload, téléchargement, suppression d'objet.
+- Moteur IAM : users scopés à un bucket (`rw`, `ro`, `rw-sans-suppression`), rotation de secret, révocation, adoption d'une clé existante.
+- Vérifications d'isolation après application (bucket attendu, sonde PUT/DELETE, lecture anonyme publique/privée, listing anonyme, bucket de contrôle).
+- Bucket policy : lecture publique par préfixe, fusion par `Sid`, diff avant application.
+- Lifecycle, versioning et CORS avec aperçu, sonde d'expiration et confirmation d'écrasement CORS.
+- Générateur `.env` Laravel, Node (`@aws-sdk/client-s3`) et AWS CLI, copie et écriture en 0600.
+- Parcours guidé « bucket prêt pour mon application » en quatre étapes.
+- Interface FR/EN, thème Nuxt UI, CSP stricte, permissions Tauri minimales.
+- CI de release Linux/macOS/Windows et suite d'intégration contre une image RustFS épinglée.
+
+### Sécurité
+
+- Secrets stockés uniquement dans le trousseau OS ; `store.json` ne contient que des identifiants masqués.
+- Aucune clé root par défaut ; un user scopé est créé pour chaque bucket.

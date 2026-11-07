@@ -87,6 +87,12 @@ Packaging fait : `tauri.conf.json` → `productName` `RustFS Config`, identifian
 installation/désinstallation. `bun run tauri:build --no-bundle` produit un binaire de 44 Mo
 qui démarre sans `rc` dans le PATH. Icônes et clés de signature restent à remplacer avant
 une distribution hors GitHub.
+QA fait : `docker-compose.test.yml` épingle `rustfs/rustfs:1.0.4` (port 9200,
+`rustfsadmin`/`rustfsadmin`) ; `.github/workflows/ci.yml` lance toute la suite headless sur
+chaque PR (gnome-keyring déverrouillé dans `dbus-run-session`, `RC_TEST_KEYRING=1`) ;
+`src-tauri/tests/errors.rs` couvre SPEC §12 (bucket non vide, bucket absent, clé invalide,
+endpoint injoignable) ; `docs/GUIDE.md` et `CHANGELOG.md` livrés. Suite validée contre
+l'image 1.0.4 : 41 tests verts.
 
 La couche Tauri est derrière la feature `gui` (défaut). Sur une machine sans GTK/WebKit :
 `cargo test --no-default-features` (voir `AGENTS.md`).

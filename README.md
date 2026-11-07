@@ -55,6 +55,17 @@ Les tests d'intégration utilisent `RUSTFS_TEST_ENDPOINT`, `RUSTFS_TEST_ACCESS_K
 `RUSTFS_TEST_SECRET_KEY` et `RC_TEST_KEYRING=1` ; ils sont ignorés/skippés sans ces
 variables et ne touchent jamais une instance de production.
 
+Suite complète contre l'image épinglée, comme en CI :
+
+```bash
+docker compose -f docker-compose.test.yml up -d
+until curl -sf http://127.0.0.1:9200 -o /dev/null; do sleep 1; done
+cd src-tauri
+RUSTFS_TEST_ENDPOINT=http://127.0.0.1:9200 \
+RUSTFS_TEST_ACCESS_KEY=rustfsadmin RUSTFS_TEST_SECRET_KEY=rustfsadmin \
+RC_TEST_KEYRING=1 cargo test --no-default-features --all-targets
+```
+
 ## Installation
 
 Le workflow `.github/workflows/release.yml` construit les paquets pour Linux, macOS et

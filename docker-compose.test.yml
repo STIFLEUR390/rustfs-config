@@ -1,0 +1,9 @@
+services:
+  rustfs:
+    image: rustfs/rustfs:1.0.4
+    container_name: rc-rustfs-test
+    ports:
+      - "9200:9000"
+    environment:
+      RUSTFS_ACCESS_KEY: rustfsadmin
+      RUSTFS_SECRET_KEY: rustfsadmin
