@@ -25,7 +25,8 @@ suppression). M3 livré : moteur IAM (users scopés, policies `rw`/`ro`/
 `rw-sans-suppression`, rotation, révocation, adoption) et vérifications d'isolation
 automatiques (`verify.rs`). M4 livré : bucket policy (lecture publique par préfixe,
 fusion par `Sid`, diff) et lifecycle/versioning/CORS. M5 livré : générateur `.env`
-(Laravel, Node, AWS CLI, écriture 0600). M6 en cours : parcours guidé et packaging.
+(Laravel, Node, AWS CLI, écriture 0600). M6 en cours : parcours guidé livré, packaging
+et identité à faire.
 Les commandes Tauri ne reçoivent
 jamais un secret pour les opérations courantes : elles prennent `instanceId` et lisent la
 clé dans le trousseau.

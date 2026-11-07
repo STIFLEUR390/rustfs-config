@@ -74,6 +74,12 @@ path-style (`{endpoint}/{bucket}`) ou virtual-host (`{scheme}://{bucket}.{host}`
 `AWS_SSL_VERIFY` n'apparaît que pour un endpoint HTTPS. UI : `app/components/EnvPanel.vue`
 (onglet .env), i18n `env.*`. Test `src-tauri/tests/env.rs` : le `.env` généré sert à
 uploader/lire avec la clé scopée.
+Parcours guidé fait : `app/components/WizardFlow.vue` (bouton « Préparer un bucket » dans
+l'en-tête) enchaîne bucket → visibilité → credentials → rétention → aperçu (diff policy +
+lifecycle, commandes `rc` équivalentes) puis applique la séquence et affiche le `.env`
+généré. Templates `laravel-media` (public `uploads/media/`, 180 j) et vide. Test
+`src-tauri/tests/wizard.rs` : produit bucket + user + `.env`, puis un rejeu ne change rien
+et un second credential est refusé.
 
 La couche Tauri est derrière la feature `gui` (défaut). Sur une machine sans GTK/WebKit :
 `cargo test --no-default-features` (voir `AGENTS.md`).

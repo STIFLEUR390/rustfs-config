@@ -22,6 +22,7 @@ const tab = ref('overview')
 const busy = ref(false)
 const actionError = ref<{message?: string; hint?: string} | null>(null)
 const bucketDialogOpen = ref(false)
+const wizardOpen = ref(false)
 const pendingDelete = ref<string | null>(null)
 const confirmation = ref('')
 const deleteOpen = computed({
@@ -168,8 +169,14 @@ function refresh() {
                 <span class="text-dimmed">·</span>
                 <span class="text-muted">{{ activeBucketName ?? t('sidebar.noBuckets') }}</span>
                 <UButton
-                    v-if="activeBucketName"
                     class="ml-auto"
+                    icon="i-lucide-wand-2"
+                    size="xs"
+                    :label="t('wizard.open')"
+                    @click="wizardOpen = true"
+                />
+                <UButton
+                    v-if="activeBucketName"
                     icon="i-lucide-trash-2"
                     color="error"
                     variant="ghost"
@@ -369,6 +376,13 @@ function refresh() {
                 </div>
             </template>
         </div>
+
+        <WizardFlow
+            v-if="activeInstance"
+            v-model:open="wizardOpen"
+            :instance-id="activeInstance.id"
+            @done="refresh"
+        />
 
         <BucketDialog
             v-if="activeInstance && activeBucketName"
