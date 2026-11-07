@@ -20,7 +20,7 @@ pièges relevés en conditions réelles.
 
 ## Prérequis
 
-- Bun 1.4+ et Rust stable (toolchain Tauri).
+- Bun 1.4+ et Rust 1.78+ (toolchain Tauri).
 - Dépendances système Tauri (webkit2gtk, etc.) : voir la doc Tauri.
 - `rc` **n'est pas requis** à l'exécution : l'app parle directement à l'API S3 et à
   l'API admin `/rustfs/admin/v3`. `rc` reste utile pour reproduire une opération en CLI ;

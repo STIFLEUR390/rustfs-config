@@ -8,10 +8,38 @@ backend RC.
 
 - `docs.rustfs.com/en/developer/sdk/rust` ne publie pas de crate client : il documente
   l'usage de `aws-sdk-s3` avec un endpoint custom (`force_path_style(true)`,
-  `Region::new("us-east-1")`).
+  `Region::new("us-east-1")`). Rust 1.78+ requis.
 - Les crates `rustfs-*` sur crates.io (1.0.1) sont des composants **serveur**
   (ecstore, filemeta, credentials…), pas un client.
 - L'API admin est une API REST maison sous `/rustfs/admin/v3`, signée SigV4.
+
+Client minimal validé par la doc officielle (`aws-config = "1"`, `aws-sdk-s3 = "1"`,
+`tokio`, `anyhow`) :
+
+```rust
+let credentials = Credentials::new(access_key, secret_key, None, None, "rustfs");
+let shared = aws_config::defaults(BehaviorVersion::latest())
+    .region(Region::new("us-east-1"))
+    .credentials_provider(credentials)
+    .endpoint_url(endpoint)
+    .load()
+    .await;
+
+// RustFS sert en path-style par défaut
+let client = Client::from_conf(
+    aws_sdk_s3::config::Builder::from(&shared).force_path_style(true).build(),
+);
+```
+
+Précisions utiles pour RC :
+
+- API S3 sur le port **9000**, console sur **9001**.
+- Sans credentials définis à l'installation, le serveur local tombe sur
+  `rustfsadmin` / `rustfsadmin` — à signaler comme configuration non sûre.
+- Le virtual-host style exige `RUSTFS_SERVER_DOMAINS` côté serveur ; sinon le toggle
+  « path-style » de RC restera le seul mode fonctionnel.
+- Presigned URLs et multipart passent par le même SDK ; vérifier les exceptions listées
+  dans `/reference/s3-compatibility` avant de les exposer dans l'UI.
 
 ## 2. Endpoints admin v3
 
