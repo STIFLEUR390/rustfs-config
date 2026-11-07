@@ -12,7 +12,8 @@ use crate::s3::{ObjectEntry, S3Client};
 pub trait RustfsBackend: Send + Sync {
     async fn list_buckets(&self) -> AppResult<Vec<String>>;
     async fn head_bucket(&self, bucket: &str) -> AppResult<()>;
-    async fn list_objects(&self, bucket: &str, prefix: Option<&str>) -> AppResult<Vec<ObjectEntry>>;
+    async fn list_objects(&self, bucket: &str, prefix: Option<&str>)
+        -> AppResult<Vec<ObjectEntry>>;
     async fn put_object(&self, bucket: &str, key: &str, body: Vec<u8>) -> AppResult<()>;
     async fn get_object(&self, bucket: &str, key: &str) -> AppResult<Vec<u8>>;
     async fn delete_object(&self, bucket: &str, key: &str) -> AppResult<()>;
@@ -55,7 +56,11 @@ impl RustfsBackend for NativeBackend {
         self.s3.head_bucket(bucket).await
     }
 
-    async fn list_objects(&self, bucket: &str, prefix: Option<&str>) -> AppResult<Vec<ObjectEntry>> {
+    async fn list_objects(
+        &self,
+        bucket: &str,
+        prefix: Option<&str>,
+    ) -> AppResult<Vec<ObjectEntry>> {
         self.s3.list_objects(bucket, prefix).await
     }
 

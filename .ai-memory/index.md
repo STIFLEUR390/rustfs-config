@@ -16,8 +16,13 @@ génération d'un `.env` (Laravel, Node, AWS CLI).
 
 ## État actuel
 
-Spec validée, aucun code métier. Le dépôt est le starter Nuxt UI / Tauri ; les tâches
-Kaneo 1 à 14 portent la construction.
+M0 validé (spec, nom, périmètre). M1 fait : backend Rust `src-tauri/src/{config,error,s3,admin,backend,commands}.rs`
+— clients S3 (`aws-sdk-s3`) et admin `/rustfs/admin/v3` signés SigV4 (`aws-sigv4`, service `s3`,
+`x-amz-content-sha256` obligatoire), exposés par 19 commandes Tauri. Trait `RustfsBackend` pour un
+futur adaptateur CLI. Test d'intégration `src-tauri/tests/admin_integration.rs` vérifié contre RustFS local.
+
+La couche Tauri est derrière la feature `gui` (défaut). Sur une machine sans GTK/WebKit :
+`cargo test --no-default-features` (voir `AGENTS.md`).
 
 ## Règles à ne pas casser
 

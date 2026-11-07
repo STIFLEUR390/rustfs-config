@@ -43,7 +43,8 @@ pub fn run() {
             commands::policy_entities,
         ]);
 
-    #[cfg(desktop)] let builder = builder.plugin(tauri_plugin_decorum::init()); // decorum (1/2)
+    #[cfg(desktop)]
+    let builder = builder.plugin(tauri_plugin_decorum::init()); // decorum (1/2)
 
     builder
         .setup(|app| {
@@ -61,7 +62,7 @@ pub fn run() {
                 use tauri::Manager;
                 let main = app.get_webview_window("main").unwrap();
                 window_effects::decorum(&main)?; // decorum (2/2)
-                // window_effects::vibrancy(&main)?;
+                                                 // window_effects::vibrancy(&main)?;
             }
             Ok(())
         })

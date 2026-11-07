@@ -46,6 +46,11 @@ Précisions utiles pour RustFS Config :
 Préfixe : `/rustfs/admin/v3`. Signature SigV4 avec la même clé que l'API S3.
 Chaque opération exige une action `admin:*` (voir §4).
 
+Signature vérifiée côté Rust (M1) : `aws-sigv4` avec `name("s3")`, `SignableBody::Bytes`
+et **impérativement** `SigningSettings { payload_checksum_kind: PayloadChecksumKind::XAmzSha256 }`.
+Sans cet en-tête, RustFS répond `InvalidRequest: missing header: x-amz-content-sha256`
+avant même de vérifier les droits.
+
 ### Utilisateurs
 
 | Opération | Méthode et chemin |

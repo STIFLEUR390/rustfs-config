@@ -133,10 +133,8 @@ impl AdminClient {
         .into();
         // S3-signed requests (and RustFS admin, which mirrors S3) must carry
         // x-amz-content-sha256, otherwise the server rejects with "missing header".
-        let settings = SigningSettings {
-            payload_checksum_kind: PayloadChecksumKind::XAmzSha256,
-            ..Default::default()
-        };
+        let mut settings = SigningSettings::default();
+        settings.payload_checksum_kind = PayloadChecksumKind::XAmzSha256;
         let params = v4::SigningParams::builder()
             .identity(&identity)
             .region(&self.region)
@@ -202,8 +200,8 @@ impl AdminClient {
 
     pub async fn add_user(&self, access_key: &str, secret_key: &str) -> AppResult<()> {
         let payload = serde_json::json!({ "secretKey": secret_key, "status": "enabled" });
-        let body = serde_json::to_vec(&payload)
-            .map_err(|e| AppError::new("json", e.to_string()))?;
+        let body =
+            serde_json::to_vec(&payload).map_err(|e| AppError::new("json", e.to_string()))?;
         self.call(
             http::Method::PUT,
             &format!("add-user?accessKey={}", urlencode(access_key)),
@@ -298,14 +296,10 @@ impl AdminClient {
 
     pub async fn detach_policy(&self, policy: &str, user: &str) -> AppResult<()> {
         let payload = serde_json::json!({ "policies": [policy], "user": user });
-        let body = serde_json::to_vec(&payload)
-            .map_err(|e| AppError::new("json", e.to_string()))?;
-        self.call(
-            http::Method::POST,
-            "idp/builtin/policy/detach",
-            Some(&body),
-        )
-        .await?;
+        let body =
+            serde_json::to_vec(&payload).map_err(|e| AppError::new("json", e.to_string()))?;
+        self.call(http::Method::POST, "idp/builtin/policy/detach", Some(&body))
+            .await?;
         Ok(())
     }
 
@@ -359,12 +353,11 @@ fn parse_error(status: u16, body: &[u8]) -> AppError {
 
 fn with_hint(err: AppError) -> AppError {
     match err.code.as_str() {
-        "AccessDenied" | "AccessDeniedException" | "InvalidAccessKeyId" => err.with_hint(
-            "La clé utilisée n'a pas les droits admin:* requis pour gérer l'IAM.",
-        ),
-        "SignatureDoesNotMatch" => {
-            err.with_hint("Le secret ne correspond pas à l'access key, ou l'horloge système dérive.")
+        "AccessDenied" | "AccessDeniedException" | "InvalidAccessKeyId" => {
+            err.with_hint("La clé utilisée n'a pas les droits admin:* requis pour gérer l'IAM.")
         }
+        "SignatureDoesNotMatch" => err
+            .with_hint("Le secret ne correspond pas à l'access key, ou l'horloge système dérive."),
         _ => err,
     }
 }

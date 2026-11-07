@@ -50,17 +50,11 @@ pub async fn put_object(
     key: String,
     body: Vec<u8>,
 ) -> AppResult<()> {
-    backend(&connection)?
-        .put_object(&bucket, &key, body)
-        .await
+    backend(&connection)?.put_object(&bucket, &key, body).await
 }
 
 #[tauri::command]
-pub async fn get_object(
-    connection: Connection,
-    bucket: String,
-    key: String,
-) -> AppResult<Vec<u8>> {
+pub async fn get_object(connection: Connection, bucket: String, key: String) -> AppResult<Vec<u8>> {
     backend(&connection)?.get_object(&bucket, &key).await
 }
 
@@ -112,19 +106,12 @@ pub async fn list_policies(connection: Connection) -> AppResult<Vec<PolicyEntry>
 }
 
 #[tauri::command]
-pub async fn get_policy(
-    connection: Connection,
-    name: String,
-) -> AppResult<serde_json::Value> {
+pub async fn get_policy(connection: Connection, name: String) -> AppResult<serde_json::Value> {
     backend(&connection)?.get_policy(&name).await
 }
 
 #[tauri::command]
-pub async fn add_policy(
-    connection: Connection,
-    name: String,
-    document: String,
-) -> AppResult<()> {
+pub async fn add_policy(connection: Connection, name: String, document: String) -> AppResult<()> {
     backend(&connection)?.add_policy(&name, &document).await
 }
 
@@ -134,20 +121,12 @@ pub async fn remove_policy(connection: Connection, name: String) -> AppResult<()
 }
 
 #[tauri::command]
-pub async fn attach_policy(
-    connection: Connection,
-    policy: String,
-    user: String,
-) -> AppResult<()> {
+pub async fn attach_policy(connection: Connection, policy: String, user: String) -> AppResult<()> {
     backend(&connection)?.attach_policy(&policy, &user).await
 }
 
 #[tauri::command]
-pub async fn detach_policy(
-    connection: Connection,
-    policy: String,
-    user: String,
-) -> AppResult<()> {
+pub async fn detach_policy(connection: Connection, policy: String, user: String) -> AppResult<()> {
     backend(&connection)?.detach_policy(&policy, &user).await
 }
 

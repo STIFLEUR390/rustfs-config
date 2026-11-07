@@ -1,6 +1,6 @@
 use aws_credential_types::Credentials;
-use aws_sdk_s3::Client;
 use aws_sdk_s3::config::Region;
+use aws_sdk_s3::Client;
 
 use crate::config::Connection;
 use crate::error::{AppError, AppResult};

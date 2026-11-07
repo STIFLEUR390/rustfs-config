@@ -45,8 +45,12 @@ cd src-tauri
 cargo fmt
 cargo clippy --all-targets -- -D warnings
 cargo test
+cargo test --no-default-features   # backend seul, sans deps GTK/WebKit (CI/conteneur)
 cargo check               # boucle rapide
 ```
+
+`gui` est une feature par défaut : les tests headless se lancent avec
+`--no-default-features` sur une machine sans `libgtk-3-dev` / `libwebkit2gtk-4.1-dev`.
 
 Aucune commande ne doit toucher une instance de production sans confirmation explicite.
 L'instance de test est locale : `http://127.0.0.1:9000`, credentials `lerd` / `lerdpassword`
