@@ -61,6 +61,20 @@ impl S3Client {
         Ok(())
     }
 
+    pub async fn get_bucket_location(&self, bucket: &str) -> AppResult<String> {
+        let out = self
+            .client
+            .get_bucket_location()
+            .bucket(bucket)
+            .send()
+            .await
+            .map_err(map_sdk)?;
+        Ok(out
+            .location_constraint()
+            .map(|l| l.as_str().to_string())
+            .unwrap_or_else(|| "us-east-1".to_string()))
+    }
+
     pub async fn list_objects(
         &self,
         bucket: &str,

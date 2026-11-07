@@ -7,6 +7,8 @@ pub mod backend;
 pub mod commands;
 pub mod config;
 pub mod error;
+pub mod instances;
+pub mod qualify;
 pub mod s3;
 pub mod secrets;
 pub mod store;
@@ -43,6 +45,10 @@ pub fn run() {
             commands::attach_policy,
             commands::detach_policy,
             commands::policy_entities,
+            commands::list_instances,
+            commands::test_instance,
+            commands::save_instance,
+            commands::delete_instance,
         ]);
 
     #[cfg(desktop)]

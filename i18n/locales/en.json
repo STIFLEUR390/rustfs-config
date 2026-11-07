@@ -4,7 +4,9 @@
   },
   "sidebar": {
     "addInstance": "Add an instance",
-    "noBuckets": "No buckets"
+    "noBuckets": "No buckets",
+    "noInstances": "No instances yet. Add one to get started.",
+    "editInstance": "Edit instance"
   },
   "status": {
     "ok": "Connected",
@@ -33,7 +35,8 @@
     "days": "{n} days",
     "noLifecycle": "None",
     "connOk": "Connection established",
-    "connError": "Connection failed"
+    "connError": "Connection failed",
+    "lastCheck": "Last test: {date} · {n} bucket(s)"
   },
   "actions": {
     "prepareBucket": "Prepare a bucket",
@@ -44,5 +47,32 @@
     "noBucket": "Select a bucket in the sidebar",
     "pendingTitle": "Not available yet",
     "pendingDescription": "This tab will be wired to the backend in the next steps."
+  },
+  "instanceForm": {
+    "addTitle": "Add an instance",
+    "editTitle": "Edit instance",
+    "label": "Label",
+    "labelPlaceholder": "Prod Aplix",
+    "endpoint": "Endpoint",
+    "endpointPlaceholder": "https://storage.example.com",
+    "region": "Region",
+    "pathStyle": "Path-style",
+    "tlsVerify": "Verify TLS certificate",
+    "accessKey": "Access key",
+    "secretKey": "Secret key",
+    "secretKeep": "Leave empty to keep the current secret",
+    "test": "Test",
+    "testing": "Testing…",
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "deleteHint": "Deleting this instance also removes its local buckets and credentials. RustFS is not modified.",
+    "deleteConfirmLabel": "Type “{label}” to confirm",
+    "buckets": "{n} bucket(s)",
+    "location": "Bucket region: {region}",
+    "levelRoot": "Root key — full access. A scoped application key is preferable.",
+    "levelAdmin": "Admin key — IAM management available.",
+    "levelLimited": "Application key — IAM management unavailable.",
+    "levelInvalid": "RustFS rejected this key."
   }
 }

@@ -105,7 +105,11 @@ pub struct Credential {
 
 impl Store {
     /// `~/.config/rc/store.json` (or `$XDG_CONFIG_HOME/rc/store.json`).
+    /// `RC_STORE_PATH` overrides it, for tests and portable setups.
     pub fn path() -> AppResult<PathBuf> {
+        if let Ok(path) = std::env::var("RC_STORE_PATH") {
+            return Ok(PathBuf::from(path));
+        }
         dirs::config_dir()
             .map(|dir| dir.join("rc").join("store.json"))
             .ok_or_else(|| {

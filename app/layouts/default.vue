@@ -1,9 +1,13 @@
 <script setup lang="ts">
-import type {ConnectionStatus} from '~/composables/useInstances'
+import type {ConnectionStatus, Instance} from '~/composables/useInstances'
+import {instanceStatus} from '~/composables/useInstances'
 
 const {t, locale, setLocale} = useI18n()
-const {instances, activeInstanceId, selectInstance} = useInstances()
+const {instances, activeInstanceId, ensureLoaded, selectInstance} = useInstances()
 const {activeBucketName, buckets, selectBucket} = useBucket()
+
+const formOpen = ref(false)
+const editing = ref<Instance | null>(null)
 
 const languages = [
     {code: 'fr', label: 'FR'},
@@ -22,6 +26,25 @@ function openInstance(id: string) {
     const first = buckets(id)[0]
     selectBucket(first ? first.name : null)
 }
+
+function openCreate() {
+    editing.value = null
+    formOpen.value = true
+}
+
+function openEdit(instance: Instance) {
+    editing.value = instance
+    formOpen.value = true
+}
+
+function onSaved(instance: Instance) {
+    openInstance(instance.id)
+}
+
+onMounted(async () => {
+    await ensureLoaded()
+    if (activeInstanceId.value) openInstance(activeInstanceId.value)
+})
 </script>
 
 <template>
@@ -34,21 +57,31 @@ function openInstance(id: string) {
 
             <nav class="flex-1 space-y-1 overflow-y-auto p-2">
                 <div v-for="instance in instances" :key="instance.id">
-                    <UButton
-                        block
-                        color="neutral"
-                        :variant="instance.id === activeInstanceId ? 'soft' : 'ghost'"
-                        class="justify-start"
-                        @click="openInstance(instance.id)"
-                    >
-                        <UIcon name="i-lucide-server" class="size-4 shrink-0"/>
-                        <span class="truncate">{{ instance.label }}</span>
-                        <span
-                            class="ml-auto size-2 shrink-0 rounded-full"
-                            :class="statusClass[instance.status]"
-                            :title="t(`status.${instance.status}`)"
+                    <div class="flex items-center gap-1">
+                        <UButton
+                            block
+                            color="neutral"
+                            :variant="instance.id === activeInstanceId ? 'soft' : 'ghost'"
+                            class="min-w-0 flex-1 justify-start"
+                            @click="openInstance(instance.id)"
+                        >
+                            <UIcon name="i-lucide-server" class="size-4 shrink-0"/>
+                            <span class="truncate">{{ instance.label }}</span>
+                            <span
+                                class="ml-auto size-2 shrink-0 rounded-full"
+                                :class="statusClass[instanceStatus(instance)]"
+                                :title="t(`status.${instanceStatus(instance)}`)"
+                            />
+                        </UButton>
+                        <UButton
+                            icon="i-lucide-pencil"
+                            color="neutral"
+                            variant="ghost"
+                            size="xs"
+                            :title="t('sidebar.editInstance')"
+                            @click="openEdit(instance)"
                         />
-                    </UButton>
+                    </div>
 
                     <div v-if="instance.id === activeInstanceId" class="mt-1 ml-4 space-y-0.5">
                         <UButton
@@ -69,6 +102,10 @@ function openInstance(id: string) {
                         </p>
                     </div>
                 </div>
+
+                <p v-if="!instances.length" class="px-2 py-3 text-sm text-muted">
+                    {{ t('sidebar.noInstances') }}
+                </p>
             </nav>
 
             <div class="space-y-2 border-t border-default p-3">
@@ -78,8 +115,7 @@ function openInstance(id: string) {
                     variant="outline"
                     icon="i-lucide-plus"
                     :label="t('sidebar.addInstance')"
-                    :title="t('actions.soon')"
-                    disabled
+                    @click="openCreate"
                 />
                 <div class="flex items-center justify-between">
                     <span class="text-xs text-muted">{{ t('app.name') }}</span>
@@ -101,5 +137,7 @@ function openInstance(id: string) {
         <main class="min-w-0 flex-1 overflow-y-auto">
             <slot/>
         </main>
+
+        <InstanceForm v-model:open="formOpen" :instance="editing" @saved="onSaved"/>
     </div>
 </template>

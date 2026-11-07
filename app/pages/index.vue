@@ -1,11 +1,35 @@
 <script setup lang="ts">
 import type {BucketSummary} from '~/composables/useBucket'
+import type {ConnectionStatus} from '~/composables/useInstances'
+import {instanceStatus} from '~/composables/useInstances'
 
 const {t} = useI18n()
 const {activeInstance} = useInstances()
 const {activeBucketName, buckets} = useBucket()
 
 const tab = ref('overview')
+
+const status = computed<ConnectionStatus>(() =>
+    activeInstance.value ? instanceStatus(activeInstance.value) : 'unknown',
+)
+
+const statusMeta = computed(() => {
+    const check = activeInstance.value?.lastCheck
+    const description = check
+        ? t('overview.lastCheck', {
+            date: new Date(check.at).toLocaleString(),
+            n: check.buckets,
+        })
+        : undefined
+    switch (status.value) {
+        case 'ok':
+            return {color: 'success' as const, icon: 'i-lucide-circle-check', title: t('overview.connOk'), description}
+        case 'error':
+            return {color: 'error' as const, icon: 'i-lucide-circle-alert', title: t('overview.connError'), description}
+        default:
+            return {color: 'neutral' as const, icon: 'i-lucide-circle-help', title: t('status.unknown'), description: undefined}
+    }
+})
 
 const tabs = computed(() => [
     {label: t('tabs.overview'), value: 'overview', icon: 'i-lucide-layout-dashboard'},
@@ -113,10 +137,10 @@ const bucket = computed<BucketSummary | null>(() => {
 
                         <UAlert
                             class="md:col-span-2"
-                            :color="activeInstance.status === 'ok' ? 'success' : 'error'"
-                            :icon="activeInstance.status === 'ok' ? 'i-lucide-circle-check' : 'i-lucide-circle-alert'"
-                            :title="activeInstance.status === 'ok' ? t('overview.connOk') : t('overview.connError')"
-                            :description="activeInstance.lastError"
+                            :color="statusMeta.color"
+                            :icon="statusMeta.icon"
+                            :title="statusMeta.title"
+                            :description="statusMeta.description"
                         />
                     </div>
 

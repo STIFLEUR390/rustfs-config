@@ -1,5 +1,6 @@
 use crate::error::{AppError, AppResult};
 use keyring::Entry;
+use serde::{Deserialize, Serialize};
 
 /// Keyring service name; the individual keys carry the `rc://` prefix.
 const SERVICE: &str = "rustfs-config";
@@ -41,6 +42,37 @@ pub fn delete(key: &str) -> AppResult<()> {
         Err(keyring::Error::NoEntry) => Ok(()),
         Err(e) => Err(map_error(e)),
     }
+}
+
+/// Credentials of an instance, stored as one keyring entry: only the store's
+/// `adminAccessKeySuffix` is allowed on disk (SPEC §5).
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct InstanceCredentials {
+    pub access_key: String,
+    pub secret_key: String,
+}
+
+pub fn set_instance_credentials(
+    id: &str,
+    access_key: &str,
+    secret_key: &str,
+) -> AppResult<()> {
+    let payload = serde_json::to_string(&InstanceCredentials {
+        access_key: access_key.to_string(),
+        secret_key: secret_key.to_string(),
+    })
+    .map_err(|e| AppError::new("keyring_serialize", e.to_string()))?;
+    set(&instance_key(id), &payload)
+}
+
+pub fn get_instance_credentials(id: &str) -> AppResult<Option<InstanceCredentials>> {
+    let Some(raw) = get(&instance_key(id))? else {
+        return Ok(None);
+    };
+    serde_json::from_str(&raw)
+        .map(Some)
+        .map_err(|e| AppError::new("keyring_corrupt", e.to_string()))
 }
 
 fn map_error(e: keyring::Error) -> AppError {

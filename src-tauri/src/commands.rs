@@ -4,7 +4,9 @@ use crate::admin::{PolicyEntry, PolicyMapping, UserRecord};
 use crate::backend::{NativeBackend, RustfsBackend};
 use crate::config::Connection;
 use crate::error::AppResult;
+use crate::instances::{self, InstanceTest};
 use crate::s3::ObjectEntry;
+use crate::store::Instance;
 
 #[derive(Debug, Clone, Serialize)]
 #[serde(rename_all = "camelCase")]
@@ -133,4 +135,28 @@ pub async fn detach_policy(connection: Connection, policy: String, user: String)
 #[tauri::command]
 pub async fn policy_entities(connection: Connection) -> AppResult<Vec<PolicyMapping>> {
     backend(&connection)?.policy_entities().await
+}
+
+#[tauri::command]
+pub async fn list_instances() -> AppResult<Vec<Instance>> {
+    instances::list()
+}
+
+#[tauri::command]
+pub async fn test_instance(connection: Connection) -> AppResult<InstanceTest> {
+    instances::test(&connection).await
+}
+
+#[tauri::command]
+pub async fn save_instance(
+    instance: Instance,
+    access_key: Option<String>,
+    secret_key: Option<String>,
+) -> AppResult<Instance> {
+    instances::save(instance, access_key, secret_key)
+}
+
+#[tauri::command]
+pub async fn delete_instance(id: String) -> AppResult<()> {
+    instances::delete(&id)
 }
