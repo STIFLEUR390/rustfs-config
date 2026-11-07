@@ -298,6 +298,13 @@ mod tests {
     }
 
     #[test]
+    fn empty_prefix_requires_confirmation() {
+        assert!(!confirmation_needed(&["uploads/media/".to_string()]));
+        assert!(confirmation_needed(&[String::new()]));
+        assert!(confirmation_needed(&["/".to_string()]));
+    }
+
+    #[test]
     fn dropped_prefixes_remove_only_managed_statements() {
         let existing = json!({"Statement": [
             {"Sid": "Legacy", "Effect": "Allow", "Action": ["s3:ListBucket"]},
