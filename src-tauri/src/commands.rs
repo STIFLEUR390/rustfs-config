@@ -321,6 +321,33 @@ pub async fn revoke_credential(instance_id: String, credential_id: String) -> Ap
 }
 
 #[tauri::command]
+pub fn generate_env(
+    instance_id: String,
+    credential_id: String,
+    format: String,
+) -> AppResult<String> {
+    crate::env::generate(&instance_id, &credential_id, &format)
+}
+
+#[tauri::command]
+pub async fn write_env_file(
+    instance_id: String,
+    credential_id: String,
+    format: String,
+    path: String,
+    allow_overwrite: bool,
+) -> AppResult<String> {
+    crate::env::write_to_path(
+        &instance_id,
+        &credential_id,
+        &format,
+        &path,
+        allow_overwrite,
+    )
+    .await
+}
+
+#[tauri::command]
 pub async fn verify_isolation(
     instance_id: String,
     bucket: String,

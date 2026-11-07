@@ -75,7 +75,12 @@ async fn purge_versions(connection: &Connection, bucket: &str) {
         client
             .delete_objects()
             .bucket(bucket)
-            .delete(Delete::builder().set_objects(Some(objects)).build().expect("delete"))
+            .delete(
+                Delete::builder()
+                    .set_objects(Some(objects))
+                    .build()
+                    .expect("delete"),
+            )
             .send()
             .await
             .expect("delete versions");

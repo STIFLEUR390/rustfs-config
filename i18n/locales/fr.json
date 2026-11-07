@@ -202,5 +202,21 @@
     "probeOk": "Sonde vérifiée : un PUT renvoie bien un en-tête Expiration.",
     "probeMissing": "Sonde sans en-tête Expiration : la règle n'est peut-être pas active.",
     "daysInvalid": "Le nombre de jours doit être un entier positif."
+  },
+  "env": {
+    "title": "Variables d'environnement",
+    "hint": "Génère le bloc prêt à coller dans le projet, à partir du credential scopé.",
+    "credential": "Credential",
+    "noCredential": "Aucun credential pour ce bucket",
+    "noCredentialHint": "Créez d'abord un credential applicatif dans l'onglet Accès.",
+    "format": "Format",
+    "generate": "Générer",
+    "copy": "Copier",
+    "copied": "Copié",
+    "save": "Enregistrer sous…",
+    "saved": "Écrit (0600) : {path}",
+    "preview": "Aperçu",
+    "secretWarning": "Le secret apparaît en clair ici. Ne le partagez pas et ne le committez pas.",
+    "overwrite": "Remplacer le fichier"
   }
 }

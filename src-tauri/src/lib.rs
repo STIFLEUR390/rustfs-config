@@ -7,6 +7,7 @@ pub mod browser;
 #[cfg(feature = "gui")]
 pub mod commands;
 pub mod config;
+pub mod env;
 pub mod error;
 pub mod iam;
 pub mod instances;
@@ -72,6 +73,8 @@ pub fn run() {
             commands::rotate_credential,
             commands::revoke_credential,
             commands::verify_isolation,
+            commands::generate_env,
+            commands::write_env_file,
             commands::bucket_state,
             commands::plan_bucket_policy,
             commands::apply_bucket_policy,

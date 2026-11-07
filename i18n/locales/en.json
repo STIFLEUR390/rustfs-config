@@ -202,5 +202,21 @@
     "probeOk": "Probe verified: a PUT returns an Expiration header.",
     "probeMissing": "Probe returned no Expiration header: the rule may not be active.",
     "daysInvalid": "Days must be a positive integer."
+  },
+  "env": {
+    "title": "Environment variables",
+    "hint": "Generate the block to paste into the project, from the scoped credential.",
+    "credential": "Credential",
+    "noCredential": "No credential for this bucket",
+    "noCredentialHint": "Create an application credential in the Access tab first.",
+    "format": "Format",
+    "generate": "Generate",
+    "copy": "Copy",
+    "copied": "Copied",
+    "save": "Save as…",
+    "saved": "Written (0600): {path}",
+    "preview": "Preview",
+    "secretWarning": "The secret is shown in clear text here. Do not share or commit it.",
+    "overwrite": "Replace the file"
   }
 }

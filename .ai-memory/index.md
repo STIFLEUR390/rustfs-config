@@ -67,6 +67,13 @@ sauf `confirmCors`), sonde `_rc-probe-lifecycle.txt` avec en-tête `Expiration` 
 dans tous les cas. UI : `app/components/LifecyclePanel.vue` (onglet Lifecycle), i18n
 `lifecycle.*`. Test `src-tauri/tests/lifecycle.rs` : idempotence règles + versioning,
 conflit CORS confirmé, aucune sonde restante.
+Générateur `.env` fait : `src-tauri/src/env.rs` rend les trois formats SPEC §8 depuis un
+credential du store (secret lu au trousseau) — `generate_env` renvoie le texte, `write_env_file`
+écrit en 0600 et refuse d'écraser sans `allowOverwrite` (`file_exists`). `AWS_URL` suit
+path-style (`{endpoint}/{bucket}`) ou virtual-host (`{scheme}://{bucket}.{host}`),
+`AWS_SSL_VERIFY` n'apparaît que pour un endpoint HTTPS. UI : `app/components/EnvPanel.vue`
+(onglet .env), i18n `env.*`. Test `src-tauri/tests/env.rs` : le `.env` généré sert à
+uploader/lire avec la clé scopée.
 
 La couche Tauri est derrière la feature `gui` (défaut). Sur une machine sans GTK/WebKit :
 `cargo test --no-default-features` (voir `AGENTS.md`).
@@ -74,6 +81,7 @@ La couche Tauri est derrière la feature `gui` (défaut). Sur une machine sans G
 ## Règles à ne pas casser
 
 - Les secrets restent dans Rust (trousseau OS), jamais dans la webview ni dans `store.json`.
+  Seule exception : le texte `.env` généré à la demande explicite de l'utilisateur.
 - Toute modification distante suit plan → diff → apply ; apply idempotent.
 - Un user IAM créé par RC est scopé à un bucket ; jamais de clé root par défaut.
 - La bucket policy se fusionne par `Sid`, jamais de remplacement brut.
