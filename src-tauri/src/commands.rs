@@ -7,8 +7,10 @@ use crate::config::Connection;
 use crate::error::AppResult;
 use crate::iam::{self, IssuedCredential};
 use crate::instances::{self, InstanceTest};
+use crate::lifecycle::{self, BucketConfigPlan, CorsSpec};
+use crate::policy::{self, PolicyPlan};
 use crate::s3::{ObjectEntry, ObjectPage, S3Client};
-use crate::store::{Credential, Instance};
+use crate::store::{Bucket, Credential, Instance};
 use crate::verify::{self, Report};
 
 #[derive(Debug, Clone, Serialize)]
@@ -325,4 +327,63 @@ pub async fn verify_isolation(
     credential_id: String,
 ) -> AppResult<Report> {
     verify::verify(&instance_id, &bucket, &credential_id).await
+}
+
+#[tauri::command]
+pub fn bucket_state(instance_id: String, bucket: String) -> AppResult<Option<Bucket>> {
+    let store = crate::store::Store::load()?;
+    Ok(store
+        .buckets
+        .into_iter()
+        .find(|entry| entry.instance_id == instance_id && entry.name == bucket))
+}
+
+#[tauri::command]
+pub async fn plan_bucket_policy(
+    instance_id: String,
+    bucket: String,
+    prefixes: Vec<String>,
+) -> AppResult<PolicyPlan> {
+    policy::plan(&instance_id, &bucket, &prefixes).await
+}
+
+#[tauri::command]
+pub async fn apply_bucket_policy(
+    instance_id: String,
+    bucket: String,
+    prefixes: Vec<String>,
+    allow_root: bool,
+) -> AppResult<PolicyPlan> {
+    policy::apply(&instance_id, &bucket, &prefixes, allow_root).await
+}
+
+#[tauri::command]
+pub async fn plan_bucket_config(
+    instance_id: String,
+    bucket: String,
+    rules: Vec<crate::store::LifecycleRule>,
+    versioning: Option<bool>,
+    cors: Option<CorsSpec>,
+) -> AppResult<BucketConfigPlan> {
+    lifecycle::plan(&instance_id, &bucket, &rules, versioning, cors).await
+}
+
+#[tauri::command]
+pub async fn apply_bucket_config(
+    instance_id: String,
+    bucket: String,
+    rules: Vec<crate::store::LifecycleRule>,
+    versioning: Option<bool>,
+    cors: Option<CorsSpec>,
+    confirm_cors: bool,
+) -> AppResult<BucketConfigPlan> {
+    lifecycle::apply(
+        &instance_id,
+        &bucket,
+        &rules,
+        versioning,
+        cors,
+        confirm_cors,
+    )
+    .await
 }

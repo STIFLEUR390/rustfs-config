@@ -10,6 +10,8 @@ pub mod config;
 pub mod error;
 pub mod iam;
 pub mod instances;
+pub mod lifecycle;
+pub mod policy;
 pub mod qualify;
 pub mod s3;
 pub mod secrets;
@@ -70,6 +72,11 @@ pub fn run() {
             commands::rotate_credential,
             commands::revoke_credential,
             commands::verify_isolation,
+            commands::bucket_state,
+            commands::plan_bucket_policy,
+            commands::apply_bucket_policy,
+            commands::plan_bucket_config,
+            commands::apply_bucket_config,
         ]);
 
     #[cfg(desktop)]

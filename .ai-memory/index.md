@@ -51,6 +51,14 @@ Vérifications d'isolation faites : `src-tauri/src/verify.rs` exécute les contr
 (clés i18n `access.verify*`, `access.checks.*`, `access.checkStatus.*`). Test
 `src-tauri/tests/isolation.rs` : rapport vert puis `bucket_policy` en échec si le store
 déclare une policy absente.
+Bucket policy faite : `src-tauri/src/policy.rs` génère un statement `s3:GetObject` par préfixe
+public (`Sid` `rc-public-<slug>`), fusionne avec la policy existante en conservant tout
+statement non `rc-public-`, calcule un diff (`add`/`update`/`remove`) et ne réécrit rien si le
+diff est vide. Préfixe vide (bucket entier) exige `allowRoot` + confirmation nommée. Après
+apply, `public_prefixes` et `managed.bucketPolicy` sont enregistrés dans le store. Commande
+`bucket_state` pour préremplir l'UI, `plan_bucket_policy`, `apply_bucket_policy` ; panneau
+`app/components/PolicyPanel.vue` (onglet Policy), i18n `policy.*`. Test
+`src-tauri/tests/policy.rs` : deux apply ne changent rien et un statement étranger survit.
 
 La couche Tauri est derrière la feature `gui` (défaut). Sur une machine sans GTK/WebKit :
 `cargo test --no-default-features` (voir `AGENTS.md`).

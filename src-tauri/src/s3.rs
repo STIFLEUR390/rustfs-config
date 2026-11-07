@@ -81,7 +81,29 @@ impl S3Client {
         serde_json::from_str(text).map_err(|err| AppError::new("json", err.to_string()))
     }
 
+    pub async fn put_bucket_policy(
+        &self,
+        bucket: &str,
+        document: &serde_json::Value,
+    ) -> AppResult<()> {
+        self.client
+            .put_bucket_policy()
+            .bucket(bucket)
+            .policy(document.to_string())
+            .send()
+            .await
+            .map_err(map_sdk)?;
+        Ok(())
+    }
+
     pub async fn bucket_has_lifecycle(&self, bucket: &str) -> AppResult<bool> {
+        Ok(!self.get_bucket_lifecycle(bucket).await?.is_empty())
+    }
+
+    pub async fn get_bucket_lifecycle(
+        &self,
+        bucket: &str,
+    ) -> AppResult<Vec<aws_sdk_s3::types::LifecycleRule>> {
         match self
             .client
             .get_bucket_lifecycle_configuration()
@@ -89,10 +111,92 @@ impl S3Client {
             .send()
             .await
         {
-            Ok(output) => Ok(!output.rules().is_empty()),
+            Ok(output) => Ok(output.rules().to_vec()),
             // NoSuchLifecycleConfiguration is a legitimate "not configured".
-            Err(_) => Ok(false),
+            Err(err) => match map_sdk(err) {
+                mapped if mapped.code == "s3_not_found" => Ok(Vec::new()),
+                mapped => Err(mapped),
+            },
         }
+    }
+
+    pub async fn put_bucket_lifecycle(
+        &self,
+        bucket: &str,
+        rules: Vec<aws_sdk_s3::types::LifecycleRule>,
+    ) -> AppResult<()> {
+        let config = aws_sdk_s3::types::BucketLifecycleConfiguration::builder()
+            .set_rules(Some(rules))
+            .build()
+            .map_err(|e| AppError::new("lifecycle_build", e.to_string()))?;
+        self.client
+            .put_bucket_lifecycle_configuration()
+            .bucket(bucket)
+            .lifecycle_configuration(config)
+            .send()
+            .await
+            .map_err(map_sdk)?;
+        Ok(())
+    }
+
+    pub async fn get_bucket_versioning(&self, bucket: &str) -> AppResult<Option<String>> {
+        let out = self
+            .client
+            .get_bucket_versioning()
+            .bucket(bucket)
+            .send()
+            .await
+            .map_err(map_sdk)?;
+        Ok(out.status().map(|status| status.as_str().to_string()))
+    }
+
+    pub async fn put_bucket_versioning(&self, bucket: &str, enabled: bool) -> AppResult<()> {
+        let status = if enabled {
+            aws_sdk_s3::types::BucketVersioningStatus::Enabled
+        } else {
+            aws_sdk_s3::types::BucketVersioningStatus::Suspended
+        };
+        let config = aws_sdk_s3::types::VersioningConfiguration::builder()
+            .status(status)
+            .build();
+        self.client
+            .put_bucket_versioning()
+            .bucket(bucket)
+            .versioning_configuration(config)
+            .send()
+            .await
+            .map_err(map_sdk)?;
+        Ok(())
+    }
+
+    pub async fn get_bucket_cors(&self, bucket: &str) -> AppResult<Vec<aws_sdk_s3::types::CorsRule>> {
+        match self.client.get_bucket_cors().bucket(bucket).send().await {
+            Ok(out) => Ok(out.cors_rules().to_vec()),
+            // NoSuchCORSConfiguration is a legitimate "not configured".
+            Err(err) => match map_sdk(err) {
+                mapped if mapped.code == "s3_not_found" => Ok(Vec::new()),
+                mapped => Err(mapped),
+            },
+        }
+    }
+
+    pub async fn put_bucket_cors(
+        &self,
+        bucket: &str,
+        rule: aws_sdk_s3::types::CorsRule,
+    ) -> AppResult<()> {
+        let config = aws_sdk_s3::types::CorsConfiguration::builder()
+            .cors_rules(rule)
+            .build()
+            .map_err(|e| AppError::new("cors_build", e.to_string()))?;
+        self.client
+            .put_bucket_cors()
+            .bucket(bucket)
+            .cors_configuration(config)
+            .send()
+            .await
+            .map_err(map_sdk)?;
+        Ok(())
     }
 
     pub async fn get_bucket_location(&self, bucket: &str) -> AppResult<String> {
@@ -182,7 +286,19 @@ impl S3Client {
     }
 
     pub async fn put_object(&self, bucket: &str, key: &str, body: Vec<u8>) -> AppResult<()> {
-        self.client
+        self.put_object_with_expiration(bucket, key, body).await?;
+        Ok(())
+    }
+
+    /// Returns the `Expiration` header when a lifecycle rule applies to the key.
+    pub async fn put_object_with_expiration(
+        &self,
+        bucket: &str,
+        key: &str,
+        body: Vec<u8>,
+    ) -> AppResult<Option<String>> {
+        let out = self
+            .client
             .put_object()
             .bucket(bucket)
             .key(key)
@@ -190,7 +306,7 @@ impl S3Client {
             .send()
             .await
             .map_err(map_sdk)?;
-        Ok(())
+        Ok(out.expiration().map(str::to_string))
     }
 
     pub async fn put_object_from_path(&self, bucket: &str, key: &str, path: &str) -> AppResult<()> {

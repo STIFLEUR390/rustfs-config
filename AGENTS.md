@@ -21,9 +21,10 @@ même changement. Ne jamais élargir le périmètre sans tâche Kaneo associée.
 M0 validé (spec, nom, périmètre). M1 socle livré : clients S3 et admin SigV4, trousseau
 `keyring`, store local, coquille UI Nuxt. M2 livré : instances (CRUD, test, qualification
 de clé) et explorateur buckets/objets (listing par préfixe, upload, téléchargement,
-suppression). M3 en cours : moteur IAM (users scopés, policies `rw`/`ro`/
+suppression). M3 livré : moteur IAM (users scopés, policies `rw`/`ro`/
 `rw-sans-suppression`, rotation, révocation, adoption) et vérifications d'isolation
-automatiques (`verify.rs`). Les commandes Tauri ne reçoivent
+automatiques (`verify.rs`). M4 en cours : bucket policy (lecture publique par préfixe,
+fusion par `Sid`, diff). Les commandes Tauri ne reçoivent
 jamais un secret pour les opérations courantes : elles prennent `instanceId` et lisent la
 clé dans le trousseau.
 

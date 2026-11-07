@@ -143,5 +143,27 @@
     "levelAdmin": "Admin key — IAM management available.",
     "levelLimited": "Application key — IAM management unavailable.",
     "levelInvalid": "RustFS rejected this key."
+  },
+  "policy": {
+    "title": "Public read (bucket policy)",
+    "hint": "One s3:GetObject statement per prefix. Statements without an rc-public- prefix are preserved.",
+    "prefix": "Public prefix",
+    "prefixPlaceholder": "uploads/media/",
+    "add": "Add",
+    "remove": "Remove",
+    "wholeBucket": "Make the whole bucket public",
+    "wholeBucketWarning": "Every object, including private files, becomes readable without authentication.",
+    "preview": "Preview diff",
+    "apply": "Apply",
+    "noChange": "No change: the policy already matches.",
+    "changes": "{n} change(s)",
+    "addAction": "Add",
+    "updateAction": "Update",
+    "removeAction": "Remove",
+    "confirmTitle": "Confirm the whole bucket",
+    "confirmHint": "Type {bucket} to make the whole bucket public.",
+    "cancel": "Cancel",
+    "applied": "Policy applied.",
+    "error": "Action failed"
   }
 }

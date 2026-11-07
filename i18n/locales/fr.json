@@ -143,5 +143,27 @@
     "levelAdmin": "Clé admin — gestion IAM disponible.",
     "levelLimited": "Clé applicative — gestion IAM indisponible.",
     "levelInvalid": "Clé refusée par RustFS."
+  },
+  "policy": {
+    "title": "Lecture publique (bucket policy)",
+    "hint": "Un statement s3:GetObject par préfixe. Les statements sans préfixe rc-public- sont conservés.",
+    "prefix": "Préfixe public",
+    "prefixPlaceholder": "uploads/media/",
+    "add": "Ajouter",
+    "remove": "Retirer",
+    "wholeBucket": "Rendre tout le bucket public",
+    "wholeBucketWarning": "Tous les objets, y compris les fichiers privés, deviennent lisibles sans authentification.",
+    "preview": "Aperçu du diff",
+    "apply": "Appliquer",
+    "noChange": "Aucun changement : la policy est déjà conforme.",
+    "changes": "{n} changement(s)",
+    "addAction": "Ajout",
+    "updateAction": "Modification",
+    "removeAction": "Suppression",
+    "confirmTitle": "Confirmer le bucket entier",
+    "confirmHint": "Saisissez {bucket} pour rendre tout le bucket public.",
+    "cancel": "Annuler",
+    "applied": "Policy appliquée.",
+    "error": "Action impossible"
   }
 }

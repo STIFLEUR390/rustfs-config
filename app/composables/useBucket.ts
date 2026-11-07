@@ -12,6 +12,22 @@ export interface ObjectPage {
     nextToken: string | null
 }
 
+export interface PolicyDiff {
+    sid: string
+    action: 'add' | 'update' | 'remove'
+    before: unknown | null
+    after: unknown | null
+}
+
+export interface PolicyPlan {
+    bucket: string
+    publicPrefixes: string[]
+    document: unknown
+    diff: PolicyDiff[]
+    changed: boolean
+    requiresConfirmation: boolean
+}
+
 const bucketNames = ref<Record<string, string[]>>({})
 const activeBucketName = ref<string | null>(null)
 const activePrefix = ref('')
@@ -111,6 +127,31 @@ export function useBucket() {
         await loadObjects(instanceId)
     }
 
+    function bucketState(instanceId: string, bucket: string) {
+        return invoke<{publicPrefixes: string[]; managed: {bucketPolicy: boolean}} | null>(
+            'bucket_state',
+            {instanceId, bucket},
+        )
+    }
+
+    function planPolicy(instanceId: string, bucket: string, prefixes: string[]) {
+        return invoke<PolicyPlan>('plan_bucket_policy', {instanceId, bucket, prefixes})
+    }
+
+    function applyPolicy(
+        instanceId: string,
+        bucket: string,
+        prefixes: string[],
+        allowRoot = false,
+    ) {
+        return invoke<PolicyPlan>('apply_bucket_policy', {
+            instanceId,
+            bucket,
+            prefixes,
+            allowRoot,
+        })
+    }
+
     return {
         bucketNames,
         activeBucketName,
@@ -128,5 +169,8 @@ export function useBucket() {
         upload,
         download,
         deleteObject,
+        bucketState,
+        planPolicy,
+        applyPolicy,
     }
 }
