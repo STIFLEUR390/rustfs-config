@@ -169,7 +169,10 @@ impl S3Client {
         Ok(())
     }
 
-    pub async fn get_bucket_cors(&self, bucket: &str) -> AppResult<Vec<aws_sdk_s3::types::CorsRule>> {
+    pub async fn get_bucket_cors(
+        &self,
+        bucket: &str,
+    ) -> AppResult<Vec<aws_sdk_s3::types::CorsRule>> {
         match self.client.get_bucket_cors().bucket(bucket).send().await {
             Ok(out) => Ok(out.cors_rules().to_vec()),
             // NoSuchCORSConfiguration is a legitimate "not configured".

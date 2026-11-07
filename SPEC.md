@@ -279,6 +279,14 @@ Règles :
 }
 ```
 
+Les règles portant l'identifiant `rc-` sont gérées par l'app, les autres sont conservées.
+Après l'apply, une vérification fait un `PUT` sonde sous le préfixe : la présence de
+l'en-tête `Expiration` prouve que la règle est active, et l'objet sonde est toujours
+supprimé.
+
+Versioning et CORS s'écrivent depuis le même plan. Une configuration CORS existante
+posée par une autre source n'est écrasée qu'après saisie du nom du bucket.
+
 ## 8. Sorties `.env`
 
 ### Laravel (format par défaut)

@@ -11,7 +11,7 @@ use crate::backend::NativeBackend;
 use crate::error::{AppError, AppResult};
 use crate::policy::normalize_prefix;
 use crate::s3::S3Client;
-use crate::store::{LifecycleRule, Store};
+use crate::store::{Bucket, LifecycleRule, Managed, Store};
 
 const MANAGED_ID_PREFIX: &str = "rc-";
 const MULTIPART_ID: &str = "rc-abort-incomplete-multipart";
@@ -323,9 +323,11 @@ pub async fn plan(
     versioning: Option<bool>,
     cors: Option<CorsSpec>,
 ) -> AppResult<BucketConfigPlan> {
-    Ok(plan_for(instance_id, bucket, rules, versioning, cors.as_ref())
-        .await?
-        .plan)
+    Ok(
+        plan_for(instance_id, bucket, rules, versioning, cors.as_ref())
+            .await?
+            .plan,
+    )
 }
 
 pub async fn apply(
@@ -344,7 +346,9 @@ pub async fn apply(
             "cors_overwrite_confirmation",
             "The bucket already has a CORS configuration RustFS Config did not create",
         )
-        .with_hint("Confirm the replacement explicitly: the existing CORS rules will be overwritten."));
+        .with_hint(
+            "Confirm the replacement explicitly: the existing CORS rules will be overwritten.",
+        ));
     }
 
     if prepared.plan.rules_changed {
@@ -370,16 +374,27 @@ pub async fn apply(
 
 fn remember(instance_id: &str, bucket: &str, rules: &[LifecycleRule]) -> AppResult<()> {
     let mut store = Store::load()?;
-    if let Some(entry) = store
+    match store
         .buckets
         .iter_mut()
         .find(|entry| entry.instance_id == instance_id && entry.name == bucket)
     {
-        entry.lifecycle = rules.to_vec();
-        entry.managed.lifecycle = true;
-        store.save()?;
+        Some(entry) => {
+            entry.lifecycle = rules.to_vec();
+            entry.managed.lifecycle = true;
+        }
+        None => store.buckets.push(Bucket {
+            instance_id: instance_id.to_string(),
+            name: bucket.to_string(),
+            lifecycle: rules.to_vec(),
+            managed: Managed {
+                lifecycle: true,
+                ..Default::default()
+            },
+            ..Default::default()
+        }),
     }
-    Ok(())
+    store.save()
 }
 
 /// A `PutObject` under an expiring prefix returns an `Expiration` header when the rule is
@@ -460,7 +475,7 @@ mod tests {
         ];
         let desired = desired_rules(&[rule("uploads/media/", 180)]).expect("desired");
         let (merged, diff) = merge(&existing, &desired);
-        assert_eq!(diff.len(), 2); // add both managed rules, remove rc-stale
+        assert_eq!(diff.len(), 3); // add both managed rules, remove rc-stale
         assert!(merged.iter().any(|rule| rule.id() == Some("legacy-expire")));
         assert!(!merged.iter().any(|rule| rule.id() == Some("rc-stale")));
 

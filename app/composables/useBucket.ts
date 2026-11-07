@@ -19,6 +19,41 @@ export interface PolicyDiff {
     after: unknown | null
 }
 
+export interface CorsSpec {
+    origins: string[]
+    methods: string[]
+    headers: string[]
+    maxAgeSeconds: number | null
+}
+
+export interface ConfigDiff {
+    id: string
+    action: 'add' | 'update' | 'remove'
+    before: unknown | null
+    after: unknown | null
+}
+
+export interface ProbeReport {
+    key: string
+    expiration: string | null
+    ok: boolean
+    detail: string | null
+}
+
+export interface BucketConfigPlan {
+    bucket: string
+    rules: {prefix: string; expireDays: number}[]
+    ruleDiff: ConfigDiff[]
+    rulesChanged: boolean
+    versioning: string | null
+    versioningTarget: string | null
+    cors: CorsSpec | null
+    corsBefore: unknown[]
+    corsChanged: boolean
+    corsConflict: boolean
+    probe: ProbeReport | null
+}
+
 export interface PolicyPlan {
     bucket: string
     publicPrefixes: string[]
@@ -128,10 +163,45 @@ export function useBucket() {
     }
 
     function bucketState(instanceId: string, bucket: string) {
-        return invoke<{publicPrefixes: string[]; managed: {bucketPolicy: boolean}} | null>(
-            'bucket_state',
-            {instanceId, bucket},
-        )
+        return invoke<{
+            publicPrefixes: string[]
+            lifecycle: {prefix: string; expireDays: number}[]
+            managed: {bucketPolicy: boolean; lifecycle: boolean}
+        } | null>('bucket_state', {instanceId, bucket})
+    }
+
+    function planBucketConfig(
+        instanceId: string,
+        bucket: string,
+        rules: {prefix: string; expireDays: number}[],
+        versioning: boolean | null,
+        cors: CorsSpec | null,
+    ) {
+        return invoke<BucketConfigPlan>('plan_bucket_config', {
+            instanceId,
+            bucket,
+            rules,
+            versioning,
+            cors,
+        })
+    }
+
+    function applyBucketConfig(
+        instanceId: string,
+        bucket: string,
+        rules: {prefix: string; expireDays: number}[],
+        versioning: boolean | null,
+        cors: CorsSpec | null,
+        confirmCors = false,
+    ) {
+        return invoke<BucketConfigPlan>('apply_bucket_config', {
+            instanceId,
+            bucket,
+            rules,
+            versioning,
+            cors,
+            confirmCors,
+        })
     }
 
     function planPolicy(instanceId: string, bucket: string, prefixes: string[]) {
@@ -170,6 +240,8 @@ export function useBucket() {
         download,
         deleteObject,
         bucketState,
+        planBucketConfig,
+        applyBucketConfig,
         planPolicy,
         applyPolicy,
     }
