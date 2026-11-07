@@ -80,6 +80,13 @@ lifecycle, commandes `rc` équivalentes) puis applique la séquence et affiche l
 généré. Templates `laravel-media` (public `uploads/media/`, 180 j) et vide. Test
 `src-tauri/tests/wizard.rs` : produit bucket + user + `.env`, puis un rejeu ne change rien
 et un second credential est refusé.
+Packaging fait : `tauri.conf.json` → `productName` `RustFS Config`, identifiant
+`fr.rustfsconfig.app`, version 0.1.0 ; `src-tauri/capabilities/default.json` réduit à
+`core:default`, `dialog:default`, `clipboard-manager:allow-write-text` ; workflow
+`.github/workflows/release.yml` (Linux/macOS/Windows, release en brouillon) ; README avec
+installation/désinstallation. `bun run tauri:build --no-bundle` produit un binaire de 44 Mo
+qui démarre sans `rc` dans le PATH. Icônes et clés de signature restent à remplacer avant
+une distribution hors GitHub.
 
 La couche Tauri est derrière la feature `gui` (défaut). Sur une machine sans GTK/WebKit :
 `cargo test --no-default-features` (voir `AGENTS.md`).
