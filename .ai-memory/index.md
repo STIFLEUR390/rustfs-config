@@ -34,6 +34,12 @@ La couche Tauri est derrière la feature `gui` (défaut). Sur une machine sans G
 
 ## Pièges déjà rencontrés
 
-Voir `docs/RUSTFS-NOTES.md` §6 (remplacement de bucket policy, `readonly` sans
+- Homebrew masque les outils système : son `pkg-config` ne trouve pas les `.pc` GTK et son
+  `ld` (binutils) lie des libs brew incompatibles avec la glibc de Jammy. Le
+  `.cargo/config.toml` local force `/usr/bin/pkg-config`, `/usr/bin/cc` et `-B/usr/bin`.
+- RustFS exige `x-amz-content-sha256` sur les routes admin ; `aws-sigv4` ne l'ajoute
+  qu'avec `PayloadChecksumKind::XAmzSha256`.
+
+Voir aussi `docs/RUSTFS-NOTES.md` §6 (remplacement de bucket policy, `readonly` sans
 `ListBucket`, `PUT` refusé par fermeture de connexion, SSE-S3 sans clé maître, test
 d'isolation à faire sur un bucket neuf).

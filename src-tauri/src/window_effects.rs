@@ -17,6 +17,7 @@ pub fn decorum(window: &WebviewWindow) -> tauri::Result<()> {
 /// Native blur behind the webview (window-vibrancy). Linux: no-op (compositor-controlled).
 /// Only visible where the page background is transparent.
 #[allow(unused_variables)]
+#[allow(dead_code)] // toggled from lib.rs
 pub fn vibrancy(window: &WebviewWindow) -> Result<(), Box<dyn std::error::Error>> {
     #[cfg(target_os = "macos")]
     {

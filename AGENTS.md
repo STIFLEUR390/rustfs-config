@@ -50,7 +50,10 @@ cargo check               # boucle rapide
 ```
 
 `gui` est une feature par défaut : les tests headless se lancent avec
-`--no-default-features` sur une machine sans `libgtk-3-dev` / `libwebkit2gtk-4.1-dev`.
+`--no-default-features`. Sur cette machine, Homebrew masque les outils système et casse le
+build GTK : `pkg-config` ne trouve pas les `.pc`, `ld` (binutils) lie des libs brew
+incompatibles avec la glibc de Jammy. Le `.cargo/config.toml` local pose déjà
+`PKG_CONFIG=/usr/bin/pkg-config`, `linker=/usr/bin/cc` et `-B/usr/bin`.
 
 Aucune commande ne doit toucher une instance de production sans confirmation explicite.
 L'instance de test est locale : `http://127.0.0.1:9000`, credentials `lerd` / `lerdpassword`
