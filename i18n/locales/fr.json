@@ -85,7 +85,27 @@
     "confirmLabel": "Saisissez l'access key pour confirmer",
     "done": "Terminé",
     "empty": "Aucune clé applicative sur ce bucket",
-    "loading": "Chargement…"
+    "loading": "Chargement…",
+    "verify": "Vérifier l'isolation",
+    "verifyTitle": "Vérifications d'isolation",
+    "verifyOk": "Isolation vérifiée : aucun accès hors du bucket attendu.",
+    "verifyFailed": "Isolation incomplète : une vérification a échoué.",
+    "checks": {
+      "list_buckets": "Listing des buckets avec la clé applicative",
+      "probe_write": "Écriture d'une sonde",
+      "probe_delete": "Suppression de la sonde",
+      "private_read": "Lecture anonyme d'un préfixe privé refusée",
+      "public_read": "Lecture anonyme d'un préfixe public autorisée",
+      "anonymous_list": "Listing anonyme refusé",
+      "control_bucket": "Accès refusé à un bucket de contrôle",
+      "bucket_policy": "Bucket policy conforme au plan",
+      "lifecycle": "Lifecycle conforme au plan"
+    },
+    "checkStatus": {
+      "pass": "OK",
+      "fail": "Échec",
+      "skip": "Ignoré"
+    }
   },
   "actions": {
     "prepareBucket": "Préparer un bucket",

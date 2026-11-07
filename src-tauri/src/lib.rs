@@ -14,6 +14,7 @@ pub mod qualify;
 pub mod s3;
 pub mod secrets;
 pub mod store;
+pub mod verify;
 
 #[cfg(feature = "gui")]
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
@@ -68,6 +69,7 @@ pub fn run() {
             commands::adopt_credential,
             commands::rotate_credential,
             commands::revoke_credential,
+            commands::verify_isolation,
         ]);
 
     #[cfg(desktop)]

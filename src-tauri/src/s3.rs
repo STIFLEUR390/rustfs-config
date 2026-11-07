@@ -69,6 +69,32 @@ impl S3Client {
         Ok(())
     }
 
+    pub async fn get_bucket_policy(&self, bucket: &str) -> AppResult<serde_json::Value> {
+        let output = self
+            .client
+            .get_bucket_policy()
+            .bucket(bucket)
+            .send()
+            .await
+            .map_err(map_sdk)?;
+        let text = output.policy().unwrap_or_default();
+        serde_json::from_str(text).map_err(|err| AppError::new("json", err.to_string()))
+    }
+
+    pub async fn bucket_has_lifecycle(&self, bucket: &str) -> AppResult<bool> {
+        match self
+            .client
+            .get_bucket_lifecycle_configuration()
+            .bucket(bucket)
+            .send()
+            .await
+        {
+            Ok(output) => Ok(!output.rules().is_empty()),
+            // NoSuchLifecycleConfiguration is a legitimate "not configured".
+            Err(_) => Ok(false),
+        }
+    }
+
     pub async fn get_bucket_location(&self, bucket: &str) -> AppResult<String> {
         let out = self
             .client

@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import {writeText} from '@tauri-apps/plugin-clipboard-manager'
-import type {Credential, CredentialMode} from '~/composables/useCredentials'
+import type {Credential, CredentialMode, IsolationReport} from '~/composables/useCredentials'
 
 const props = defineProps<{instanceId: string; bucket: string}>()
 const {t} = useI18n()
-const {credentials, loading, error, load, create, adopt, rotate, revoke} = useCredentials()
+const {credentials, loading, error, load, create, adopt, rotate, revoke, verify} = useCredentials()
 
 const busy = ref(false)
 const actionError = ref<{message?: string; hint?: string} | null>(null)
@@ -22,6 +22,10 @@ const issued = ref<{accessKey: string; secret: string} | null>(null)
 
 const revokeTarget = ref<Credential | null>(null)
 const confirmation = ref('')
+
+const reportOpen = ref(false)
+const report = ref<IsolationReport | null>(null)
+const verifyingId = ref<string | null>(null)
 
 const modeItems = computed(() => [
     {label: t('access.modeRw'), value: 'rw'},
@@ -110,6 +114,37 @@ async function copySecret() {
     if (issued.value) await writeText(issued.value.secret)
 }
 
+async function runVerify(credential: Credential) {
+    verifyingId.value = credential.id
+    actionError.value = null
+    try {
+        report.value = await verify(props.instanceId, props.bucket, credential)
+        reportOpen.value = true
+    } catch (cause) {
+        actionError.value = cause as {message?: string; hint?: string}
+    } finally {
+        verifyingId.value = null
+    }
+}
+
+function checkIcon(status: string) {
+    if (status === 'pass') return 'i-lucide-circle-check'
+    if (status === 'fail') return 'i-lucide-circle-x'
+    return 'i-lucide-circle-minus'
+}
+
+function checkColor(status: string) {
+    if (status === 'pass') return 'success' as const
+    if (status === 'fail') return 'error' as const
+    return 'neutral' as const
+}
+
+function checkIconClass(status: string) {
+    if (status === 'pass') return 'mt-0.5 size-4 text-success'
+    if (status === 'fail') return 'mt-0.5 size-4 text-error'
+    return 'mt-0.5 size-4 text-dimmed'
+}
+
 function formatDate(value: string | null) {
     return value ? new Date(value).toLocaleString() : '—'
 }
@@ -154,6 +189,15 @@ function formatDate(value: string | null) {
                 <span class="ml-auto hidden text-xs text-muted sm:inline">
                     {{ t('access.rotatedAt', {date: formatDate(credential.rotatedAt)}) }}
                 </span>
+                <UButton
+                    icon="i-lucide-shield-check"
+                    color="neutral"
+                    variant="ghost"
+                    size="xs"
+                    :title="t('access.verify')"
+                    :loading="verifyingId === credential.id"
+                    @click="runVerify(credential)"
+                />
                 <UButton
                     icon="i-lucide-refresh-cw"
                     color="neutral"
@@ -235,8 +279,7 @@ function formatDate(value: string | null) {
             </template>
         </UModal>
 
-        <UModal v-model:open="secretOpen" :title="t('access.secretTitle')">
-            <template #body>
+        <UModal v-model:open="secretOpen" :title="t('access.secretTitle')">            <template #body>
                 <div v-if="issued" class="space-y-3">
                     <UAlert
                         color="warning"
@@ -257,6 +300,39 @@ function formatDate(value: string | null) {
             <template #footer>
                 <div class="ml-auto">
                     <UButton :label="t('access.done')" @click="secretOpen = false"/>
+                </div>
+            </template>
+        </UModal>
+
+        <UModal v-model:open="reportOpen" :title="t('access.verifyTitle')">
+            <template #body>
+                <div v-if="report" class="space-y-3">
+                    <UAlert
+                        :color="report.ok ? 'success' : 'error'"
+                        :icon="report.ok ? 'i-lucide-shield-check' : 'i-lucide-shield-x'"
+                        :title="report.ok ? t('access.verifyOk') : t('access.verifyFailed')"
+                    />
+                    <div class="divide-y divide-default rounded-lg border border-default">
+                        <div
+                            v-for="check in report.checks"
+                            :key="check.id"
+                            class="flex items-start gap-2 px-3 py-2 text-sm"
+                        >
+                            <UIcon :name="checkIcon(check.status)" :class="checkIconClass(check.status)"/>
+                            <div class="min-w-0 flex-1">
+                                <p>{{ t(`access.checks.${check.id}`) }}</p>
+                                <p v-if="check.detail" class="text-xs text-muted">{{ check.detail }}</p>
+                            </div>
+                            <UBadge :color="checkColor(check.status)" variant="subtle" size="sm">
+                                {{ t(`access.checkStatus.${check.status}`) }}
+                            </UBadge>
+                        </div>
+                    </div>
+                </div>
+            </template>
+            <template #footer>
+                <div class="ml-auto">
+                    <UButton :label="t('access.done')" @click="reportOpen = false"/>
                 </div>
             </template>
         </UModal>

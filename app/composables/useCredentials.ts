@@ -16,6 +16,17 @@ export interface IssuedCredential {
     secret: string | null
 }
 
+export interface IsolationCheck {
+    id: string
+    status: 'pass' | 'fail' | 'skip'
+    detail?: string
+}
+
+export interface IsolationReport {
+    ok: boolean
+    checks: IsolationCheck[]
+}
+
 export type CredentialMode = 'rw' | 'ro' | 'rw-sans-suppression'
 
 const credentials = ref<Credential[]>([])
@@ -66,5 +77,13 @@ export function useCredentials() {
         await load(instanceId, credential.bucket)
     }
 
-    return {credentials, loading, error, load, create, adopt, rotate, revoke}
+    async function verify(instanceId: string, bucket: string, credential: Credential) {
+        return await invoke<IsolationReport>('verify_isolation', {
+            instanceId,
+            bucket,
+            credentialId: credential.id,
+        })
+    }
+
+    return {credentials, loading, error, load, create, adopt, rotate, revoke, verify}
 }

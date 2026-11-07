@@ -43,6 +43,14 @@ aucun user), et adopte une clé existante sans la modifier. Secret généré cô
 caractères), stocké au trousseau, renvoyé une seule fois. UI : `app/components/AccessPanel.vue`
 (onglet Accès) + `app/composables/useCredentials.ts`. Test d'intégration
 `src-tauri/tests/iam.rs` (créer → vérifier l'isolation → tourner → révoquer).
+Vérifications d'isolation faites : `src-tauri/src/verify.rs` exécute les contrôles SPEC §10
+(`list_buckets`, `probe_write`, `probe_delete`, `private_read`, `public_read`,
+`anonymous_list`, `control_bucket`, `bucket_policy`, `lifecycle`), supprime toujours la sonde
+`_rc-probe/<nanos>.txt` et renvoie `Report { ok, checks[{id,status,detail}] }`. Commande
+`verify_isolation` ; bouton bouclier et modale de rapport dans `app/components/AccessPanel.vue`
+(clés i18n `access.verify*`, `access.checks.*`, `access.checkStatus.*`). Test
+`src-tauri/tests/isolation.rs` : rapport vert puis `bucket_policy` en échec si le store
+déclare une policy absente.
 
 La couche Tauri est derrière la feature `gui` (défaut). Sur une machine sans GTK/WebKit :
 `cargo test --no-default-features` (voir `AGENTS.md`).

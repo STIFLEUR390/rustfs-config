@@ -9,6 +9,7 @@ use crate::iam::{self, IssuedCredential};
 use crate::instances::{self, InstanceTest};
 use crate::s3::{ObjectEntry, ObjectPage, S3Client};
 use crate::store::{Credential, Instance};
+use crate::verify::{self, Report};
 
 #[derive(Debug, Clone, Serialize)]
 #[serde(rename_all = "camelCase")]
@@ -315,4 +316,13 @@ pub async fn rotate_credential(instance_id: String, credential_id: String) -> Ap
 #[tauri::command]
 pub async fn revoke_credential(instance_id: String, credential_id: String) -> AppResult<()> {
     iam::revoke(&instance_id, &credential_id).await
+}
+
+#[tauri::command]
+pub async fn verify_isolation(
+    instance_id: String,
+    bucket: String,
+    credential_id: String,
+) -> AppResult<Report> {
+    verify::verify(&instance_id, &bucket, &credential_id).await
 }

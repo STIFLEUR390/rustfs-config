@@ -85,7 +85,27 @@
     "confirmLabel": "Type the access key to confirm",
     "done": "Done",
     "empty": "No application key on this bucket",
-    "loading": "Loading…"
+    "loading": "Loading…",
+    "verify": "Verify isolation",
+    "verifyTitle": "Isolation checks",
+    "verifyOk": "Isolation verified: no access outside the expected bucket.",
+    "verifyFailed": "Isolation incomplete: one check failed.",
+    "checks": {
+      "list_buckets": "Bucket listing with the application key",
+      "probe_write": "Write a probe object",
+      "probe_delete": "Delete the probe object",
+      "private_read": "Anonymous read of a private prefix denied",
+      "public_read": "Anonymous read of a public prefix allowed",
+      "anonymous_list": "Anonymous listing denied",
+      "control_bucket": "Access to a control bucket denied",
+      "bucket_policy": "Bucket policy matches the plan",
+      "lifecycle": "Lifecycle matches the plan"
+    },
+    "checkStatus": {
+      "pass": "Pass",
+      "fail": "Fail",
+      "skip": "Skipped"
+    }
   },
   "actions": {
     "prepareBucket": "Prepare a bucket",
