@@ -36,7 +36,28 @@
     "noLifecycle": "Aucune",
     "connOk": "Connexion établie",
     "connError": "Connexion impossible",
-    "lastCheck": "Dernier test : {date} · {n} bucket(s)"
+    "lastCheck": "Dernier test : {date} · {n} bucket(s)",
+    "bucketPending": "La policy et le lifecycle de ce bucket apparaîtront dans les onglets Accès, Policy et Lifecycle."
+  },
+  "buckets": {
+    "title": "Buckets",
+    "createTitle": "Créer un bucket",
+    "deleteTitle": "Supprimer le bucket",
+    "name": "Nom du bucket",
+    "create": "Créer",
+    "deleteHint": "Le bucket « {name} » doit être vide. La suppression est irréversible.",
+    "confirmLabel": "Saisissez « {name} » pour confirmer"
+  },
+  "objects": {
+    "upload": "Importer un fichier",
+    "refresh": "Rafraîchir",
+    "download": "Télécharger",
+    "delete": "Supprimer",
+    "deleteTitle": "Supprimer l'objet",
+    "deleteHint": "L'objet « {key} » sera supprimé définitivement.",
+    "confirmLabel": "Saisissez la clé complète pour confirmer",
+    "empty": "Aucun objet à cet emplacement",
+    "loadMore": "Charger la suite"
   },
   "actions": {
     "prepareBucket": "Préparer un bucket",

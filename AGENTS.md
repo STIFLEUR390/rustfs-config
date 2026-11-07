@@ -18,16 +18,18 @@ même changement. Ne jamais élargir le périmètre sans tâche Kaneo associée.
 
 ## État du projet
 
-Phase de spécification validée, aucun code métier. Le dépôt contient le starter
-Nuxt UI / Tauri ; les tâches 1 à 14 (Kaneo) décrivent la construction. La page
-`app/pages/index.vue` est encore le placeholder du starter.
+M0 validé (spec, nom, périmètre). M1 socle livré : clients S3 et admin SigV4, trousseau
+`keyring`, store local, coquille UI Nuxt. M2 en cours : instances (CRUD, test, qualification
+de clé) et explorateur buckets/objets (listing par préfixe, upload, téléchargement,
+suppression). Les commandes Tauri ne reçoivent jamais un secret pour les opérations
+courantes : elles prennent `instanceId` et lisent la clé dans le trousseau.
 
 ## Stack
 
 | Couche | Version |
 | --- | --- |
 | Tauri | 2.11.6 (`src-tauri/Cargo.toml`), CLI 2.12 |
-| Rust | `rust-version` actuel 1.77.2 — **à relever**, `aws-sdk-s3` exige davantage |
+| Rust | `rust-version` 1.82 — `aws-sdk-s3` exige davantage que le starter |
 | Nuxt | 4.6.2, SSR désactivé, génération statique |
 | Nuxt UI | 4.11.3, Tailwind 4 |
 | Bun | 1.4.2 (gestionnaire de paquets) |
@@ -181,23 +183,21 @@ Règles de suivi :
   pas par un changement silencieux de périmètre.
 - Les dates butoir des tâches sont la référence de l'ordre de travail.
 
-## Dépendances backend à ajouter (une fois, validées)
-
-Aucune n'est encore présente ; les ajouter au moment de la tâche concernée, pas toutes d'un
-coup.
+## Dépendances backend présentes
 
 | Crate | Usage |
 | --- | --- |
 | `aws-config`, `aws-sdk-s3` | opérations S3, signature SigV4 |
 | `aws-sigv4` + `reqwest` | routes `/rustfs/admin/v3` |
 | `tokio` | runtime async |
-| `thiserror`, `uuid` | erreurs typées, identifiants locaux |
-| `keyring` | trousseau OS |
-| `time` (ou `chrono`) | horodatage du store |
-| `tauri-specta` + `specta` | IPC typé, types TS générés (option recommandée) |
-| `zeroize` | effacement des secrets en mémoire (option) |
+| `thiserror` | erreurs typées |
+| `keyring` | trousseau OS (`sync-secret-service` + `crypto-rust` sur Linux) |
+| `dirs` | chemin du `store.json` |
+| `async-trait` | trait `RustfsBackend` |
 
-Pas de nouvelle dépendance frontend sans nécessité démontrée.
+Encore optionnel si le besoin apparaît : `uuid`, `tauri-specta`/`specta` (IPC typé),
+`zeroize` (effacement mémoire). Pas de nouvelle dépendance frontend sans nécessité
+démontrée.
 
 ## Définition de « terminé »
 

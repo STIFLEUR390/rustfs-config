@@ -3,7 +3,7 @@ use async_trait::async_trait;
 use crate::admin::{AdminClient, PolicyEntry, PolicyMapping, UserRecord};
 use crate::config::Connection;
 use crate::error::AppResult;
-use crate::s3::{ObjectEntry, S3Client};
+use crate::s3::{ObjectEntry, ObjectPage, S3Client};
 
 /// Abstraction over the two RustFS surfaces (S3 + admin v3).
 ///
@@ -15,8 +15,19 @@ pub trait RustfsBackend: Send + Sync {
     async fn get_bucket_location(&self, bucket: &str) -> AppResult<String>;
     async fn list_objects(&self, bucket: &str, prefix: Option<&str>)
         -> AppResult<Vec<ObjectEntry>>;
+    async fn list_objects_page(
+        &self,
+        bucket: &str,
+        prefix: Option<&str>,
+        token: Option<&str>,
+        max_keys: Option<i32>,
+    ) -> AppResult<ObjectPage>;
+    async fn create_bucket(&self, bucket: &str) -> AppResult<()>;
+    async fn delete_bucket(&self, bucket: &str) -> AppResult<()>;
     async fn put_object(&self, bucket: &str, key: &str, body: Vec<u8>) -> AppResult<()>;
+    async fn put_object_from_path(&self, bucket: &str, key: &str, path: &str) -> AppResult<()>;
     async fn get_object(&self, bucket: &str, key: &str) -> AppResult<Vec<u8>>;
+    async fn get_object_to_path(&self, bucket: &str, key: &str, path: &str) -> AppResult<()>;
     async fn delete_object(&self, bucket: &str, key: &str) -> AppResult<()>;
 
     async fn list_users(&self) -> AppResult<Vec<UserRecord>>;
@@ -69,12 +80,40 @@ impl RustfsBackend for NativeBackend {
         self.s3.list_objects(bucket, prefix).await
     }
 
+    async fn list_objects_page(
+        &self,
+        bucket: &str,
+        prefix: Option<&str>,
+        token: Option<&str>,
+        max_keys: Option<i32>,
+    ) -> AppResult<ObjectPage> {
+        self.s3
+            .list_objects_page(bucket, prefix, Some("/"), token, max_keys)
+            .await
+    }
+
+    async fn create_bucket(&self, bucket: &str) -> AppResult<()> {
+        self.s3.create_bucket(bucket).await
+    }
+
+    async fn delete_bucket(&self, bucket: &str) -> AppResult<()> {
+        self.s3.delete_bucket(bucket).await
+    }
+
     async fn put_object(&self, bucket: &str, key: &str, body: Vec<u8>) -> AppResult<()> {
         self.s3.put_object(bucket, key, body).await
     }
 
+    async fn put_object_from_path(&self, bucket: &str, key: &str, path: &str) -> AppResult<()> {
+        self.s3.put_object_from_path(bucket, key, path).await
+    }
+
     async fn get_object(&self, bucket: &str, key: &str) -> AppResult<Vec<u8>> {
         self.s3.get_object(bucket, key).await
+    }
+
+    async fn get_object_to_path(&self, bucket: &str, key: &str, path: &str) -> AppResult<()> {
+        self.s3.get_object_to_path(bucket, key, path).await
     }
 
     async fn delete_object(&self, bucket: &str, key: &str) -> AppResult<()> {

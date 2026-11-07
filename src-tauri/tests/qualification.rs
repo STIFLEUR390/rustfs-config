@@ -53,10 +53,18 @@ async fn admin_and_scoped_keys_are_distinguished() {
     let scoped_user = unique("rc-scoped-test");
     let scoped_secret = "rc-scoped-test-secret";
 
-    root.add_user(&admin_user, admin_secret).await.expect("add admin user");
-    root.attach_policy("consoleAdmin", &admin_user).await.expect("attach consoleAdmin");
-    root.add_user(&scoped_user, scoped_secret).await.expect("add scoped user");
-    root.attach_policy("readonly", &scoped_user).await.expect("attach readonly");
+    root.add_user(&admin_user, admin_secret)
+        .await
+        .expect("add admin user");
+    root.attach_policy("consoleAdmin", &admin_user)
+        .await
+        .expect("attach consoleAdmin");
+    root.add_user(&scoped_user, scoped_secret)
+        .await
+        .expect("add scoped user");
+    root.attach_policy("readonly", &scoped_user)
+        .await
+        .expect("attach readonly");
 
     let admin = AdminClient::new(&connection(&admin_user, admin_secret)).expect("admin client");
     let admin_result = qualify(&admin, &admin_user).await.expect("qualify admin");
@@ -64,7 +72,9 @@ async fn admin_and_scoped_keys_are_distinguished() {
     assert_eq!(admin_result.policy_name.as_deref(), Some("consoleAdmin"));
 
     let scoped = AdminClient::new(&connection(&scoped_user, scoped_secret)).expect("scoped client");
-    let scoped_result = qualify(&scoped, &scoped_user).await.expect("qualify scoped");
+    let scoped_result = qualify(&scoped, &scoped_user)
+        .await
+        .expect("qualify scoped");
     assert_eq!(scoped_result.level, KeyLevel::Limited, "{scoped_result:?}");
 
     // Cleanup runs even if an assertion above fails hard only on the next run; keep it simple.

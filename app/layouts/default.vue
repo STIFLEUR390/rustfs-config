@@ -4,10 +4,11 @@ import {instanceStatus} from '~/composables/useInstances'
 
 const {t, locale, setLocale} = useI18n()
 const {instances, activeInstanceId, ensureLoaded, selectInstance} = useInstances()
-const {activeBucketName, buckets, selectBucket} = useBucket()
-
+const {activeBucketName, buckets, loadBuckets, selectBucket} = useBucket()
 const formOpen = ref(false)
 const editing = ref<Instance | null>(null)
+const bucketDialogOpen = ref(false)
+const bucketDialogMode = ref<'create' | 'delete'>('create')
 
 const languages = [
     {code: 'fr', label: 'FR'},
@@ -20,11 +21,19 @@ const statusClass: Record<ConnectionStatus, string> = {
     unknown: 'bg-dimmed',
 }
 
-// Pick the first bucket of the instance so the panel is never half-empty.
-function openInstance(id: string) {
+async function openInstance(id: string) {
     selectInstance(id)
-    const first = buckets(id)[0]
-    selectBucket(first ? first.name : null)
+    selectBucket(null)
+    try {
+        await loadBuckets(id)
+    } catch {
+        // The connection error is surfaced by the instance form and the panel alert.
+    }
+}
+
+async function openBucket(instanceId: string, name: string) {
+    selectInstance(instanceId)
+    selectBucket(name)
 }
 
 function openCreate() {
@@ -37,13 +46,18 @@ function openEdit(instance: Instance) {
     formOpen.value = true
 }
 
+function openBucketDialog() {
+    bucketDialogMode.value = 'create'
+    bucketDialogOpen.value = true
+}
+
 function onSaved(instance: Instance) {
     openInstance(instance.id)
 }
 
 onMounted(async () => {
     await ensureLoaded()
-    if (activeInstanceId.value) openInstance(activeInstanceId.value)
+    if (activeInstanceId.value) await openInstance(activeInstanceId.value)
 })
 </script>
 
@@ -84,18 +98,31 @@ onMounted(async () => {
                     </div>
 
                     <div v-if="instance.id === activeInstanceId" class="mt-1 ml-4 space-y-0.5">
+                        <div class="flex items-center justify-between pr-1">
+                            <span class="px-2 text-xs uppercase text-dimmed">
+                                {{ t('buckets.title') }}
+                            </span>
+                            <UButton
+                                icon="i-lucide-plus"
+                                color="neutral"
+                                variant="ghost"
+                                size="xs"
+                                :title="t('buckets.createTitle')"
+                                @click="openBucketDialog"
+                            />
+                        </div>
                         <UButton
-                            v-for="bucket in buckets(instance.id)"
-                            :key="bucket.name"
+                            v-for="name in buckets(instance.id)"
+                            :key="name"
                             block
                             size="sm"
                             color="neutral"
-                            :variant="bucket.name === activeBucketName ? 'soft' : 'ghost'"
+                            :variant="name === activeBucketName ? 'soft' : 'ghost'"
                             class="justify-start"
-                            @click="selectBucket(bucket.name)"
+                            @click="openBucket(instance.id, name)"
                         >
                             <UIcon name="i-lucide-database" class="size-4 shrink-0"/>
-                            <span class="truncate">{{ bucket.name }}</span>
+                            <span class="truncate">{{ name }}</span>
                         </UButton>
                         <p v-if="!buckets(instance.id).length" class="px-2 py-1 text-xs text-muted">
                             {{ t('sidebar.noBuckets') }}
@@ -139,5 +166,12 @@ onMounted(async () => {
         </main>
 
         <InstanceForm v-model:open="formOpen" :instance="editing" @saved="onSaved"/>
+
+        <BucketDialog
+            v-if="activeInstanceId"
+            v-model:open="bucketDialogOpen"
+            :mode="bucketDialogMode"
+            :instance-id="activeInstanceId"
+        />
     </div>
 </template>

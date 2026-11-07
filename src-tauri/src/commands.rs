@@ -2,10 +2,11 @@ use serde::Serialize;
 
 use crate::admin::{PolicyEntry, PolicyMapping, UserRecord};
 use crate::backend::{NativeBackend, RustfsBackend};
+use crate::browser;
 use crate::config::Connection;
 use crate::error::AppResult;
 use crate::instances::{self, InstanceTest};
-use crate::s3::ObjectEntry;
+use crate::s3::{ObjectEntry, ObjectPage, S3Client};
 use crate::store::Instance;
 
 #[derive(Debug, Clone, Serialize)]
@@ -46,6 +47,29 @@ pub async fn list_objects(
 }
 
 #[tauri::command]
+pub async fn list_objects_page(
+    connection: Connection,
+    bucket: String,
+    prefix: Option<String>,
+    token: Option<String>,
+    max_keys: Option<i32>,
+) -> AppResult<ObjectPage> {
+    backend(&connection)?
+        .list_objects_page(&bucket, prefix.as_deref(), token.as_deref(), max_keys)
+        .await
+}
+
+#[tauri::command]
+pub async fn create_bucket(connection: Connection, bucket: String) -> AppResult<()> {
+    backend(&connection)?.create_bucket(&bucket).await
+}
+
+#[tauri::command]
+pub async fn delete_bucket(connection: Connection, bucket: String) -> AppResult<()> {
+    backend(&connection)?.delete_bucket(&bucket).await
+}
+
+#[tauri::command]
 pub async fn put_object(
     connection: Connection,
     bucket: String,
@@ -56,8 +80,32 @@ pub async fn put_object(
 }
 
 #[tauri::command]
+pub async fn put_object_from_path(
+    connection: Connection,
+    bucket: String,
+    key: String,
+    path: String,
+) -> AppResult<()> {
+    backend(&connection)?
+        .put_object_from_path(&bucket, &key, &path)
+        .await
+}
+
+#[tauri::command]
 pub async fn get_object(connection: Connection, bucket: String, key: String) -> AppResult<Vec<u8>> {
     backend(&connection)?.get_object(&bucket, &key).await
+}
+
+#[tauri::command]
+pub async fn get_object_to_path(
+    connection: Connection,
+    bucket: String,
+    key: String,
+    path: String,
+) -> AppResult<()> {
+    backend(&connection)?
+        .get_object_to_path(&bucket, &key, &path)
+        .await
 }
 
 #[tauri::command]
@@ -159,4 +207,77 @@ pub async fn save_instance(
 #[tauri::command]
 pub async fn delete_instance(id: String) -> AppResult<()> {
     instances::delete(&id)
+}
+
+fn instance_s3(instance_id: &str) -> AppResult<S3Client> {
+    S3Client::new(&browser::connection(instance_id)?)
+}
+
+#[tauri::command]
+pub async fn list_instance_buckets(instance_id: String) -> AppResult<Vec<String>> {
+    instance_s3(&instance_id)?.list_buckets().await
+}
+
+#[tauri::command]
+pub async fn list_instance_objects(
+    instance_id: String,
+    bucket: String,
+    prefix: Option<String>,
+    token: Option<String>,
+    max_keys: Option<i32>,
+) -> AppResult<ObjectPage> {
+    instance_s3(&instance_id)?
+        .list_objects_page(
+            &bucket,
+            prefix.as_deref(),
+            Some("/"),
+            token.as_deref(),
+            max_keys,
+        )
+        .await
+}
+
+#[tauri::command]
+pub async fn create_instance_bucket(instance_id: String, bucket: String) -> AppResult<()> {
+    instance_s3(&instance_id)?.create_bucket(&bucket).await
+}
+
+#[tauri::command]
+pub async fn delete_instance_bucket(instance_id: String, bucket: String) -> AppResult<()> {
+    instance_s3(&instance_id)?.delete_bucket(&bucket).await
+}
+
+#[tauri::command]
+pub async fn upload_instance_object(
+    instance_id: String,
+    bucket: String,
+    key: String,
+    path: String,
+) -> AppResult<()> {
+    instance_s3(&instance_id)?
+        .put_object_from_path(&bucket, &key, &path)
+        .await
+}
+
+#[tauri::command]
+pub async fn download_instance_object(
+    instance_id: String,
+    bucket: String,
+    key: String,
+    path: String,
+) -> AppResult<()> {
+    instance_s3(&instance_id)?
+        .get_object_to_path(&bucket, &key, &path)
+        .await
+}
+
+#[tauri::command]
+pub async fn delete_instance_object(
+    instance_id: String,
+    bucket: String,
+    key: String,
+) -> AppResult<()> {
+    instance_s3(&instance_id)?
+        .delete_object(&bucket, &key)
+        .await
 }

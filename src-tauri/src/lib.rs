@@ -3,6 +3,7 @@ mod window_effects;
 
 pub mod admin;
 pub mod backend;
+pub mod browser;
 #[cfg(feature = "gui")]
 pub mod commands;
 pub mod config;
@@ -30,8 +31,13 @@ pub fn run() {
             commands::list_buckets,
             commands::head_bucket,
             commands::list_objects,
+            commands::list_objects_page,
+            commands::create_bucket,
+            commands::delete_bucket,
             commands::put_object,
+            commands::put_object_from_path,
             commands::get_object,
+            commands::get_object_to_path,
             commands::delete_object,
             commands::list_users,
             commands::get_user,
@@ -49,6 +55,13 @@ pub fn run() {
             commands::test_instance,
             commands::save_instance,
             commands::delete_instance,
+            commands::list_instance_buckets,
+            commands::list_instance_objects,
+            commands::create_instance_bucket,
+            commands::delete_instance_bucket,
+            commands::upload_instance_object,
+            commands::download_instance_object,
+            commands::delete_instance_object,
         ]);
 
     #[cfg(desktop)]

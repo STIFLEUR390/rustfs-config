@@ -25,10 +25,15 @@ Stockage local fait : `src-tauri/src/store.rs` (état non secret, écriture atom
 `rc://credential/<id>`). Coquille UI faite : `app/layouts/default.vue` (sidebar instances/
 buckets, bascule FR/EN), `app/pages/index.vue` (6 onglets, états vides), composables
 `app/composables/useInstances.ts` et `useBucket.ts`, CSP stricte dans
-`src-tauri/tauri.conf.json`. CRUD instances fait : `src-tauri/src/instances.rs`
-(`list/test/save/delete`) et `src-tauri/src/qualify.rs` (root / admin / limitée /
-invalide), 4 commandes Tauri (`list_instances`, `test_instance`, `save_instance`,
-`delete_instance`), formulaire `app/components/InstanceForm.vue`. Les credentials
+`src-tauri/tauri.conf.json`. CRUD instances et explorateur buckets/objets faits :
+`src-tauri/src/instances.rs` (`list/test/save/delete`), `src-tauri/src/qualify.rs` (root /
+admin / limitée / invalide), `src-tauri/src/browser.rs` (résolution `instanceId` → connexion
+avec lecture du trousseau), `src-tauri/src/s3.rs` (`list_objects_page` avec delimiter et
+continuation token, `create_bucket`, `delete_bucket`, upload/téléchargement par chemin).
+Commandes `instanceId`-scoped : `list_instance_buckets`, `list_instance_objects`,
+`create_instance_bucket`, `delete_instance_bucket`, `upload_instance_object`,
+`download_instance_object`, `delete_instance_object`. UI : `app/components/InstanceForm.vue`,
+`app/components/BucketDialog.vue`, onglet Objets dans `app/pages/index.vue`. Les credentials
 d'instance vivent au trousseau (`secrets::set_instance_credentials`), pas dans `store.json`.
 
 La couche Tauri est derrière la feature `gui` (défaut). Sur une machine sans GTK/WebKit :

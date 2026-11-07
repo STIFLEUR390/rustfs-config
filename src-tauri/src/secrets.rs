@@ -53,11 +53,7 @@ pub struct InstanceCredentials {
     pub secret_key: String,
 }
 
-pub fn set_instance_credentials(
-    id: &str,
-    access_key: &str,
-    secret_key: &str,
-) -> AppResult<()> {
+pub fn set_instance_credentials(id: &str, access_key: &str, secret_key: &str) -> AppResult<()> {
     let payload = serde_json::to_string(&InstanceCredentials {
         access_key: access_key.to_string(),
         secret_key: secret_key.to_string(),

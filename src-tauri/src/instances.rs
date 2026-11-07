@@ -125,7 +125,9 @@ pub fn delete(id: &str) -> AppResult<()> {
         .collect();
     store.instances.retain(|instance| instance.id != id);
     store.buckets.retain(|bucket| bucket.instance_id != id);
-    store.credentials.retain(|credential| credential.instance_id != id);
+    store
+        .credentials
+        .retain(|credential| credential.instance_id != id);
     store.save()?;
 
     secrets::delete(&secrets::instance_key(id))?;

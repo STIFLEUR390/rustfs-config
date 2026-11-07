@@ -36,7 +36,28 @@
     "noLifecycle": "None",
     "connOk": "Connection established",
     "connError": "Connection failed",
-    "lastCheck": "Last test: {date} · {n} bucket(s)"
+    "lastCheck": "Last test: {date} · {n} bucket(s)",
+    "bucketPending": "This bucket's policy and lifecycle will appear in the Access, Policy and Lifecycle tabs."
+  },
+  "buckets": {
+    "title": "Buckets",
+    "createTitle": "Create a bucket",
+    "deleteTitle": "Delete the bucket",
+    "name": "Bucket name",
+    "create": "Create",
+    "deleteHint": "The bucket \"{name}\" must be empty. Deletion cannot be undone.",
+    "confirmLabel": "Type \"{name}\" to confirm"
+  },
+  "objects": {
+    "upload": "Upload a file",
+    "refresh": "Refresh",
+    "download": "Download",
+    "delete": "Delete",
+    "deleteTitle": "Delete the object",
+    "deleteHint": "The object \"{key}\" will be permanently deleted.",
+    "confirmLabel": "Type the full key to confirm",
+    "empty": "No object at this location",
+    "loadMore": "Load more"
   },
   "actions": {
     "prepareBucket": "Prepare a bucket",
