@@ -1,4 +1,4 @@
-# RC — mémoire projet
+# RustFS Config — mémoire projet
 
 Point d'entrée pour les agents. Lire ce fichier, puis les documents ci-dessous selon la
 tâche.

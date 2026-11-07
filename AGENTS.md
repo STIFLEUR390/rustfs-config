@@ -1,4 +1,4 @@
-# AGENTS.md — RC (RustFS Config)
+# AGENTS.md — RustFS Config
 
 Application desktop Tauri 2 + Nuxt 4 pour configurer des instances RustFS : buckets,
 policies IAM scopées, lecture publique par préfixe, lifecycle, puis génération d'un `.env`
@@ -59,9 +59,9 @@ L'instance de test est locale : `http://127.0.0.1:9000`, credentials `lerd` / `l
   révéler un secret une fois, après confirmation explicite.
 - **Plan → diff → apply.** Aucune écriture distante depuis un formulaire. `plan` calcule
   l'état cible et le diff, `apply` exécute et renvoie un rapport par action.
-- **Idempotence.** Rejouer un apply ne doit rien changer. Les ressources créées par RC sont
-  marquées (`rc-` sur les policies, `state.json`), et RC ne supprime jamais une ressource
-  qu'il n'a pas créée sans confirmation nommée.
+- **Idempotence.** Rejouer un apply ne doit rien changer. Les ressources créées par RustFS Config
+  sont marquées (`rc-` sur les policies, `state.json`), et RustFS Config ne supprime jamais une
+  ressource qu'il n'a pas créée sans confirmation nommée.
 - **Moindre privilège par défaut.** Un projet reçoit un user scopé à son bucket. Utiliser la
   clé admin est un choix explicite avec avertissement bloquant.
 - **Une seule couche réseau.** Le backend Rust parle à S3 et à l'API admin ; le frontend
@@ -114,7 +114,7 @@ Détail complet dans `docs/RUSTFS-NOTES.md` §6. Les cinq qui coûtent le plus c
 2. `readonly` n'inclut pas `s3:ListBucket` : un bucket « invisible » n'est pas vide.
 3. Un `PUT` vers un bucket non autorisé peut renvoyer une connexion fermée, pas un 403.
 4. `SSE-S3` sans `RUSTFS_SSE_S3_MASTER_KEY` casse tous les PUT : ne pas activer le
-   chiffrement depuis RC en v1.
+   chiffrement depuis RustFS Config en v1.
 5. Tester l'isolation sur un bucket **neuf et privé** ; un bucket déjà public répond
    favorablement même sans droit IAM.
 

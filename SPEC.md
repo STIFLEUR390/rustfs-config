@@ -1,6 +1,8 @@
-# SPEC — RC (RustFS Config)
+# SPEC — RustFS Config
 
-Version 0.1 — 07/11/2026. Statut : à valider avant développement.
+Version 0.1 — 07/11/2026. Statut : **validée** — 07/11/2026.
+
+**Nom définitif :** `RustFS Config` (définitif le 07/11/2026, évite la collision avec le CLI `rc`).
 
 ---
 
@@ -354,7 +356,7 @@ Fenêtre 800×600 minimum, redimensionnable, une seule fenêtre.
 
 ```
 ┌ Sidebar ────────────┬ Contenu ──────────────────────────────────┐
-│ RC                  │ Prod Aplix · kwiktalk          [⋯]        │
+│ RustFS Config       │ Prod Aplix · kwiktalk          [⋯]        │
 │ ▾ Prod Aplix        │ Onglets : Vue d'ensemble · Objets ·       │
 │   • kwiktalk  ●     │ Accès · Policy · Lifecycle · .env         │
 │   • backups         │                                           │
@@ -394,8 +396,8 @@ Fenêtre 800×600 minimum, redimensionnable, une seule fenêtre.
    accessible anonymement, fichier privé refusé (403).
 3. La clé générée ne permet ni de lister, ni de lire, ni d'écrire dans un autre bucket.
 4. Rejouer le même assistant sur le même bucket ne produit aucun changement (idempotence).
-5. Une bucket policy préexistante non gérée par RC survit à l'application (fusion, pas
-   remplacement).
+5. Une bucket policy préexistante non gérée par RustFS Config survit à l'application (fusion,
+   pas remplacement).
 6. Aucun secret en clair sur le disque, dans les logs ou dans la webview après création.
 7. L'app démarre et fonctionne hors ligne (hors instance), sans binaire externe.
 
@@ -425,11 +427,19 @@ Fenêtre 800×600 minimum, redimensionnable, une seule fenêtre.
   intégrée.
 - **Périmètre qui gonfle** : toute demande hors §3 part en v2.
 
-## 16. Questions ouvertes
+## 16. Questions ouvertes — **répondues le 07/11/2026 (M0)**
 
-1. Nom définitif : `RC` est court mais collisionne avec `rc` (le CLI). Alternatives :
-   `RustFS Config`, `Bucketwright`, `Seau`. Décision à prendre avant M1.
-2. Faut-il embarquer un `rc` optionnel (bouton « exécuter cette commande ») ou seulement
-   l'afficher ?
-3. Support des groupes IAM en v1.1 ou v2 ?
-4. Format d'export supplémentaire : Docker Compose, Symfony, Rails ?
+1. **Nom définitif : `RustFS Config`.** Chose le 07/11/2026. `RC` collisionnait avec le CLI
+   `rc` ; `RustFS Config` est clair, parlant, et ne dit pas « outil interne ».
+   Le dépôt GitHub est `STIFLEUR390/rustfs-config`. Le binaire s'appellera `rustfs-config`.
+   Les alternatives `Bucketwright` et `Seau` were not retained (moins parlantes).
+2. **Embarquement de `rc` : affichage seulement.** Aucun bouton « exécuter cette commande »
+   en v1. L'app affiche la commande `rc` équivalente (copiable), mais ne la lance pas :
+   dépendance binaire non contractuelle, et exécuter un subprocess depuis une app desktop
+   ajoute une surface d'attaque et un point de défaillance. Révision possible en v2 si la
+   demande revient.
+3. **Groupes IAM : v2.** Hors périmètre v1 (§3). Les service accounts et groupes sont
+   prévus en v2, une fois le modèle de base (user + policy par bucket) stabilisé.
+4. **Formats d'export supplémentaires : v2.** Docker Compose, Symfony, Rails sont
+   reportés à v2. Le générateur v1 couvre Laravel (défaut), Node `@aws-sdk/client-s3`,
+   et AWS CLI. Les retours terrain détermineront les prochains formats.

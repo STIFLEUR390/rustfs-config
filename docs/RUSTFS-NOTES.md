@@ -2,7 +2,7 @@
 
 Relevé le 07/11/2026 sur RustFS (instance locale `lerd-rustfs` et instance de production
 `https://storage.applix.fr`), `rc` 0.1.37. Sert de référence pour l'implémentation du
-backend RC.
+backend RustFS Config.
 
 ## 1. Pas de SDK client Rust officiel
 
@@ -31,13 +31,13 @@ let client = Client::from_conf(
 );
 ```
 
-Précisions utiles pour RC :
+Précisions utiles pour RustFS Config :
 
 - API S3 sur le port **9000**, console sur **9001**.
 - Sans credentials définis à l'installation, le serveur local tombe sur
   `rustfsadmin` / `rustfsadmin` — à signaler comme configuration non sûre.
 - Le virtual-host style exige `RUSTFS_SERVER_DOMAINS` côté serveur ; sinon le toggle
-  « path-style » de RC restera le seul mode fonctionnel.
+  « path-style » de RustFS Config restera le seul mode fonctionnel.
 - Presigned URLs et multipart passent par le même SDK ; vérifier les exceptions listées
   dans `/reference/s3-compatibility` avant de les exposer dans l'UI.
 
@@ -113,7 +113,7 @@ Toujours générer une policy scopée (voir SPEC §7.1).
 `CreatePolicy`, `DeletePolicy`, `GetPolicy`, `AttachUserOrGroupPolicy`,
 `ListGroups`, `GetGroup`, `AddUserToGroup`, `RemoveUserFromGroup`, `EnableGroup`,
 `DisableGroup`, `ServerInfo`, etc. Une clé applicative n'a aucune de ces actions : c'est
-le discriminant utilisé par RC pour désactiver les écrans IAM.
+le discriminant utilisé par RustFS Config pour désactiver les écrans IAM.
 
 ## 5. Correspondance `rc`
 
@@ -140,7 +140,7 @@ titre pédagogique ; elle ne les exécute pas.
    être faite côté app avant l'appel.
 2. **SSE-S3 casse tous les PUT** si `RUSTFS_SSE_S3_MASTER_KEY` n'est pas défini :
    `SSE-S3 requires RUSTFS_SSE_S3_MASTER_KEY to be set to a base64-encoded 32-byte key
-   when KMS is not configured`. Ne pas activer le chiffrement depuis RC en v1.
+   when KMS is not configured`. Ne pas activer le chiffrement depuis RustFS Config en v1.
 3. **`PUT` vers un bucket non autorisé** peut renvoyer
    `Connection was closed before we received a valid response` au lieu d'un 403.
    Confirmer le refus par `ListObjects` / `HeadObject`.
@@ -148,7 +148,7 @@ titre pédagogique ; elle ne les exécute pas.
    connue fonctionne. Piège classique en support.
 5. **`GetPublicAccessBlock` non supporté** :
    `NoSuchPublicAccessBlockConfiguration`. La protection contre l'exposition publique
-   repose donc sur la bucket policy et sur les vérifications de RC.
+   repose donc sur la bucket policy et sur les vérifications de RustFS Config.
 6. **Un `AccessDenied` sur `DeleteObject` ne signifie pas bucket en lecture seule** : la
    policy de la clé peut n'autoriser que `Get`/`Put` (cas d'une clé MCP restreinte).
 7. **Bucket policy anonyme** : `s3:GetObject` seul, jamais `ListBucket`, jamais

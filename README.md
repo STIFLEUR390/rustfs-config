@@ -1,9 +1,11 @@
-# RC — RustFS Config
+# RustFS Config
 
 Petite application desktop (Tauri 2 + Nuxt 4 + Nuxt UI 4) pour configurer des instances
 RustFS sans retaper de JSON à la main : instances, buckets, policies IAM, accès public par
 préfixe, lifecycle, puis génération des variables d'environnement à coller dans un projet
 (Laravel en premier).
+
+**Nom :** `RustFS Config` (définitif, 2026-11-07). Évite la collision avec le CLI `rc`.
 
 Le problème d'origine : chaque nouveau projet refait le même travail — créer un bucket,
 créer un user S3 limité à ce bucket, écrire la policy, autoriser la lecture anonyme de
@@ -22,9 +24,9 @@ pièges relevés en conditions réelles.
 
 - Bun 1.4+ et Rust 1.78+ (toolchain Tauri).
 - Dépendances système Tauri (webkit2gtk, etc.) : voir la doc Tauri.
-- `rc` **n'est pas requis** à l'exécution : l'app parle directement à l'API S3 et à
+- `rc` (CLI RustFS) **n'est pas requis** à l'exécution : l'app parle directement à l'API S3 et à
   l'API admin `/rustfs/admin/v3`. `rc` reste utile pour reproduire une opération en CLI ;
-  l'UI affiche la commande équivalente.
+  l'UI affiche la commande équivalente (sans l'exécuter).
 - Une instance RustFS joignable (locale ou distante) avec un compte autorisé aux actions
   `admin:*` pour la gestion IAM.
 
