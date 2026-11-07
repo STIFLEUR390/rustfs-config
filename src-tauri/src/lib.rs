@@ -8,6 +8,8 @@ pub mod commands;
 pub mod config;
 pub mod error;
 pub mod s3;
+pub mod secrets;
+pub mod store;
 
 #[cfg(feature = "gui")]
 #[cfg_attr(mobile, tauri::mobile_entry_point)]

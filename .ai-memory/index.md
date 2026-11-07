@@ -20,6 +20,9 @@ M0 validé (spec, nom, périmètre). M1 fait : backend Rust `src-tauri/src/{conf
 — clients S3 (`aws-sdk-s3`) et admin `/rustfs/admin/v3` signés SigV4 (`aws-sigv4`, service `s3`,
 `x-amz-content-sha256` obligatoire), exposés par 19 commandes Tauri. Trait `RustfsBackend` pour un
 futur adaptateur CLI. Test d'intégration `src-tauri/tests/admin_integration.rs` vérifié contre RustFS local.
+Stockage local fait : `src-tauri/src/store.rs` (état non secret, écriture atomique) et
+`src-tauri/src/secrets.rs` (trousseau OS via `keyring`, clés `rc://instance/<id>` et
+`rc://credential/<id>`).
 
 La couche Tauri est derrière la feature `gui` (défaut). Sur une machine sans GTK/WebKit :
 `cargo test --no-default-features` (voir `AGENTS.md`).
@@ -39,6 +42,8 @@ La couche Tauri est derrière la feature `gui` (défaut). Sur une machine sans G
   `.cargo/config.toml` local force `/usr/bin/pkg-config`, `/usr/bin/cc` et `-B/usr/bin`.
 - RustFS exige `x-amz-content-sha256` sur les routes admin ; `aws-sigv4` ne l'ajoute
   qu'avec `PayloadChecksumKind::XAmzSha256`.
+- `keyring` 3 : utiliser `sync-secret-service` + `crypto-rust` (et non `linux-native`,
+  qui passe par le keyring du noyau et ne survit pas au redémarrage).
 
 Voir aussi `docs/RUSTFS-NOTES.md` §6 (remplacement de bucket policy, `readonly` sans
 `ListBucket`, `PUT` refusé par fermeture de connexion, SSE-S3 sans clé maître, test

@@ -54,6 +54,8 @@ aws-types = "1"
 aws-config = { version = "1", features = ["behavior-version-latest"] }
 aws-sdk-s3 = "1"
 aws-sigv4 = "1"
+keyring = { version = "3", features = ["apple-native", "windows-native", "sync-secret-service", "crypto-rust"] }
+dirs = "6"
 tauri = { version = "2.11.6", features = [ "devtools", "config-json5"], optional = true }
 tauri-plugin-log = { version = "2.9.2", optional = true }
 tauri-plugin-clipboard-manager = { version = "2.3.3", optional = true }
