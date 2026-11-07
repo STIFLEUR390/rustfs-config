@@ -1,8 +1,8 @@
 {
   "$schema": "../node_modules/@tauri-apps/cli/config.schema.json",
-  "productName": "nuxt-app",
+  "productName": "RustFS Config",
   "version": "0.1.0",
-  "identifier": "com.tauri.dev",
+  "identifier": "fr.rustfsconfig.app",
   "build": {
     "frontendDist": "../dist",
     "devUrl": "http://127.0.0.1:3000",
@@ -35,6 +35,8 @@
       "icons/128x128@2x.png",
       "icons/icon.icns",
       "icons/icon.ico"
-    ]
+    ],
+    "shortDescription": "Configure RustFS buckets, scoped IAM users and .env files",
+    "category": "DeveloperTool"
   }
 }

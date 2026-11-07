@@ -15,14 +15,16 @@ l'instance.
 
 ## État
 
-Phase de spécification. Aucune fonctionnalité n'est implémentée (le dépôt contient le
-starter Nuxt UI / Tauri). Voir [`SPEC.md`](./SPEC.md) pour le périmètre et
+v0.1.0 : instances (CRUD, test, qualification de clé), explorateur buckets/objets,
+moteur IAM scopé (rotation, révocation, adoption), vérifications d'isolation, bucket
+policy par préfixe avec diff, lifecycle/versioning/CORS, générateur `.env` (Laravel,
+Node, AWS CLI) et parcours guidé. Voir [`SPEC.md`](./SPEC.md) pour le périmètre et
 [`docs/RUSTFS-NOTES.md`](./docs/RUSTFS-NOTES.md) pour l'API admin, les policies et les
 pièges relevés en conditions réelles.
 
 ## Prérequis
 
-- Bun 1.4+ et Rust 1.78+ (toolchain Tauri).
+- Bun 1.4+ et Rust 1.82+ (toolchain Tauri).
 - Dépendances système Tauri (webkit2gtk, etc.) : voir la doc Tauri.
 - `rc` (CLI RustFS) **n'est pas requis** à l'exécution : l'app parle directement à l'API S3 et à
   l'API admin `/rustfs/admin/v3`. `rc` reste utile pour reproduire une opération en CLI ;
@@ -40,6 +42,51 @@ bun run tauri:build   # binaire de production
 
 Scripts utiles : `bun run dev` (navigateur seul), `bun run generate` (build statique
 consommé par Tauri via `frontendDist: ../dist`).
+
+Tests backend sans interface (pas besoin de GTK/WebKit) :
+
+```bash
+cd src-tauri
+cargo test --no-default-features
+cargo clippy --all-targets --no-default-features -- -D warnings
+```
+
+Les tests d'intégration utilisent `RUSTFS_TEST_ENDPOINT`, `RUSTFS_TEST_ACCESS_KEY`,
+`RUSTFS_TEST_SECRET_KEY` et `RC_TEST_KEYRING=1` ; ils sont ignorés/skippés sans ces
+variables et ne touchent jamais une instance de production.
+
+## Installation
+
+Le workflow `.github/workflows/release.yml` construit les paquets pour Linux, macOS et
+Windows à chaque tag `v*` et les attache à une release GitHub en brouillon.
+
+| Plateforme | Paquet | Installation |
+| --- | --- | --- |
+| Linux | `.AppImage` / `.deb` / `.rpm` | `chmod +x RustFS-Config_*.AppImage` puis l'exécuter, ou `sudo dpkg -i` / `sudo rpm -i` |
+| macOS | `.dmg` | Ouvrir le disque et glisser l'app dans *Applications* |
+| Windows | `.msi` / `.exe` | Double-clic et suivre l'assistant |
+
+L'app ne requiert ni `rc` ni variable d'environnement : elle parle directement à S3 et à
+`/rustfs/admin/v3`. Les secrets sont dans le trousseau de l'OS, l'état non secret dans
+`~/.config/rc/store.json` (Linux), `~/Library/Application Support/rc/store.json` (macOS)
+ou `%APPDATA%\rc\store.json` (Windows). Le backend Rust est compilé dans le binaire.
+
+Avant une distribution hors GitHub, remplacer les icônes de `src-tauri/icons/` et
+configurer les clés de signature (`TAURI_SIGNING_PRIVATE_KEY` et
+`TAURI_SIGNING_PRIVATE_KEY_PASSWORD`) pour l'updater.
+
+## Désinstallation
+
+| Plateforme | Commande |
+| --- | --- |
+| Linux `.deb` | `sudo apt remove rustfs-config` |
+| Linux `.rpm` | `sudo rpm -e rustfs-config` |
+| Linux AppImage | supprimer le fichier `.AppImage` |
+| macOS | glisser l'app hors de *Applications* |
+| Windows | *Paramètres → Applications → RustFS Config → Désinstaller* |
+
+Supprimer ensuite les données locales si souhaité : le dossier `rc` cité ci-dessus et les
+entrées du trousseau (`rustfs-config`, clés `rc://instance/<id>` et `rc://credential/<id>`).
 
 ## Structure
 

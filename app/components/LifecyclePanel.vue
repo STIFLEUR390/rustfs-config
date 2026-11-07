@@ -253,15 +253,7 @@ function actionLabel(action: string) {
                             />
                         </UFormField>
                         <UFormField :label="t('lifecycle.methods')" class="sm:col-span-2">
-                            <div class="flex flex-wrap gap-3">
-                                <UCheckbox
-                                    v-for="method in methods"
-                                    :key="method"
-                                    v-model="corsMethods"
-                                    :value="method"
-                                    :label="method"
-                                />
-                            </div>
+                            <UCheckboxGroup v-model="corsMethods" :items="[...methods]"/>
                         </UFormField>
                         <UFormField :label="t('lifecycle.maxAge')">
                             <UInput v-model="maxAge" type="number" min="0" class="w-32"/>
@@ -313,8 +305,7 @@ function actionLabel(action: string) {
                             <code class="text-xs">{{ diff.id }}</code>
                             <span v-if="ruleDays(diff)" class="text-xs text-muted">
                                 {{ ruleDays(diff) }}
-                            </span>
-                        </li>
+                            </span>                        </li>
                         <li v-if="plan.versioningTarget" class="flex items-center gap-2">
                             <UBadge color="warning" variant="subtle" size="sm">
                                 {{ t('lifecycle.updateAction') }}

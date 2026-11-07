@@ -33,6 +33,12 @@ async function load() {
 
 watch(() => [props.instanceId, props.bucket], load, {immediate: true})
 
+// A stale plan would let "apply" skip the whole-bucket confirmation.
+watch([wholeBucket, prefixes], () => {
+    plan.value = null
+    applied.value = false
+})
+
 function addPrefix() {
     const value = newPrefix.value.trim()
     if (!value) return
@@ -59,8 +65,7 @@ async function preview() {
 }
 
 async function apply() {
-    if (!plan.value) return
-    if (plan.value.requiresConfirmation) {
+    if (wholeBucket.value || plan.value?.requiresConfirmation) {
         confirmation.value = ''
         confirmOpen.value = true
         return
