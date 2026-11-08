@@ -42,7 +42,10 @@ async fn spec_error_cases_are_mapped() {
     s3.put_object(&bucket, "keep.txt", b"x".to_vec())
         .await
         .expect("put object");
-    let not_empty = s3.delete_bucket(&bucket).await.expect_err("bucket is not empty");
+    let not_empty = s3
+        .delete_bucket(&bucket)
+        .await
+        .expect_err("bucket is not empty");
     assert_eq!(not_empty.code, "s3_error");
     assert!(
         not_empty.message.to_lowercase().contains("not empty")
