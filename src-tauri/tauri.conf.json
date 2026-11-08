@@ -37,6 +37,15 @@
       "icons/icon.ico"
     ],
     "shortDescription": "Configure RustFS buckets, scoped IAM users and .env files",
-    "category": "DeveloperTool"
+    "category": "DeveloperTool",
+    "createUpdaterArtifacts": true
+  },
+  "plugins": {
+    "updater": {
+      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDY5OENCNTRFNDdFNTk2MTEKUldRUmx1VkhUcldNYWFyVlZORUJKbVpqMUJPZ3M1QmlXdnQvTDY5MnNIZDhIcFV4aUJJRkxEc28K",
+      "endpoints": [
+        "https://github.com/STIFLEUR390/rustfs-config/releases/latest/download/latest.json"
+      ]
+    }
   }
 }

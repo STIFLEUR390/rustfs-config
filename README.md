@@ -109,8 +109,12 @@ Les icônes de `src-tauri/icons/` sont générées depuis `app-icon.png` (1024×
 bunx tauri icon app-icon.png   # régénère 32/64/128/256/512, .ico, .icns et les logos Store
 ```
 
-Avant une distribution hors GitHub, configurer les clés de signature
-(`TAURI_SIGNING_PRIVATE_KEY` et `TAURI_SIGNING_PRIVATE_KEY_PASSWORD`) pour l'updater.
+Avant une distribution hors GitHub, configurer les clés de signature pour l'updater. La
+clé publique est déjà dans `src-tauri/tauri.conf.json` (`plugins.updater.pubkey`, endpoints
+GitHub Releases) ; la clé privée chiffrée et son mot de passe vivent hors dépôt dans
+`~/.tauri/rustfs-config.key` et `~/.tauri/rustfs-config.key.password.txt`. En CI, les
+exposer comme secrets `TAURI_SIGNING_PRIVATE_KEY` (contenu de la clé) et
+`TAURI_SIGNING_PRIVATE_KEY_PASSWORD`.
 
 ## Désinstallation
 
