@@ -110,11 +110,17 @@ bunx tauri icon app-icon.png   # régénère 32/64/128/256/512, .ico, .icns et l
 ```
 
 Avant une distribution hors GitHub, configurer les clés de signature pour l'updater. La
-clé publique est déjà dans `src-tauri/tauri.conf.json` (`plugins.updater.pubkey`, endpoints
+clé publique est déjà dans `src-tauri/tauri.conf.json` (`plugins.updater.pubkey`, endpoint
 GitHub Releases) ; la clé privée chiffrée et son mot de passe vivent hors dépôt dans
 `~/.tauri/rustfs-config.key` et `~/.tauri/rustfs-config.key.password.txt`. En CI, les
 exposer comme secrets `TAURI_SIGNING_PRIVATE_KEY` (contenu de la clé) et
 `TAURI_SIGNING_PRIVATE_KEY_PASSWORD`.
+
+Un build local (`bun run tauri:build`) ne demande aucune clé : les artefacts de mise à jour
+ne sont produits qu'en release, via `src-tauri/tauri.release.conf.json`. L'application ne
+vérifie jamais les mises à jour au lancement par défaut ; l'option s'active dans
+**Paramètres** (icône engrenage en bas de la barre latérale), sinon la vérification reste
+manuelle.
 
 ## Désinstallation
 

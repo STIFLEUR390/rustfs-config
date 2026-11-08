@@ -264,5 +264,14 @@
     "resultPolicy": "Bucket policy applied ({n} change(s))",
     "resultUser": "User {name} created",
     "resultLifecycle": "Lifecycle applied ({n} change(s))"
+  },
+  "settings": {
+    "title": "Settings",
+    "autoCheck": "Check for updates at startup",
+    "autoCheckHint": "Off by default. No network call is made at launch until this option is enabled.",
+    "checkNow": "Check now",
+    "upToDate": "You are on the latest version.",
+    "available": "Version {version} is available.",
+    "install": "Download and install"
   }
 }

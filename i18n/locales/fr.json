@@ -264,5 +264,14 @@
     "resultPolicy": "Bucket policy appliquée ({n} changement(s))",
     "resultUser": "User {name} créé",
     "resultLifecycle": "Lifecycle appliqué ({n} changement(s))"
+  },
+  "settings": {
+    "title": "Paramètres",
+    "autoCheck": "Vérifier les mises à jour au démarrage",
+    "autoCheckHint": "Désactivé par défaut. Aucun appel réseau n'est fait au lancement tant que cette option est inactive.",
+    "checkNow": "Vérifier maintenant",
+    "upToDate": "Vous utilisez la dernière version.",
+    "available": "Version {version} disponible.",
+    "install": "Télécharger et installer"
   }
 }

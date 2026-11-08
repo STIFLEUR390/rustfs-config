@@ -5,10 +5,12 @@ import {instanceStatus} from '~/composables/useInstances'
 const {t, locale, setLocale} = useI18n()
 const {instances, activeInstanceId, ensureLoaded, selectInstance} = useInstances()
 const {activeBucketName, buckets, loadBuckets, selectBucket} = useBucket()
+const {enabled: autoUpdate, status: updateStatus, available: updateAvailable, error: updateError, setEnabled: setAutoUpdate, checkForUpdates, installUpdate, autoCheck} = useUpdater()
 const formOpen = ref(false)
 const editing = ref<Instance | null>(null)
 const bucketDialogOpen = ref(false)
 const bucketDialogMode = ref<'create' | 'delete'>('create')
+const settingsOpen = ref(false)
 
 const languages = [
     {code: 'fr', label: 'FR'},
@@ -56,6 +58,7 @@ function onSaved(instance: Instance) {
 }
 
 onMounted(async () => {
+    await autoCheck()
     await ensureLoaded()
     if (activeInstanceId.value) await openInstance(activeInstanceId.value)
 })
@@ -146,7 +149,7 @@ onMounted(async () => {
                 />
                 <div class="flex items-center justify-between">
                     <span class="text-xs text-muted">{{ t('app.name') }}</span>
-                    <div class="flex gap-1">
+                    <div class="flex items-center gap-1">
                         <UButton
                             v-for="language in languages"
                             :key="language.code"
@@ -155,6 +158,14 @@ onMounted(async () => {
                             :variant="locale === language.code ? 'solid' : 'ghost'"
                             :label="language.label"
                             @click="setLocale(language.code)"
+                        />
+                        <UButton
+                            icon="i-lucide-settings"
+                            color="neutral"
+                            variant="ghost"
+                            size="xs"
+                            :title="t('settings.title')"
+                            @click="settingsOpen = true"
                         />
                     </div>
                 </div>
@@ -173,5 +184,55 @@ onMounted(async () => {
             :mode="bucketDialogMode"
             :instance-id="activeInstanceId"
         />
+
+        <UModal v-model:open="settingsOpen" :title="t('settings.title')">
+            <template #body>
+                <div class="space-y-4">
+                    <div class="flex items-start justify-between gap-4">
+                        <div>
+                            <p class="text-sm font-medium">{{ t('settings.autoCheck') }}</p>
+                            <p class="text-xs text-muted">{{ t('settings.autoCheckHint') }}</p>
+                        </div>
+                        <USwitch :model-value="autoUpdate" @update:model-value="setAutoUpdate"/>
+                    </div>
+
+                    <div class="flex flex-wrap items-center gap-3">
+                        <UButton
+                            size="sm"
+                            icon="i-lucide-refresh-cw"
+                            :loading="updateStatus === 'checking'"
+                            :label="t('settings.checkNow')"
+                            @click="checkForUpdates"
+                        />
+                        <span v-if="updateStatus === 'current'" class="text-sm text-success">
+                            {{ t('settings.upToDate') }}
+                        </span>
+                        <span v-else-if="updateAvailable" class="text-sm">
+                            {{ t('settings.available', {version: updateAvailable.version}) }}
+                        </span>
+                    </div>
+
+                    <UButton
+                        v-if="updateAvailable"
+                        size="sm"
+                        color="primary"
+                        icon="i-lucide-download"
+                        :label="t('settings.install')"
+                        @click="installUpdate"
+                    />
+
+                    <UAlert
+                        v-if="updateError"
+                        color="error"
+                        variant="subtle"
+                        icon="i-lucide-triangle-alert"
+                        :description="updateError"
+                    />
+                    <p v-if="updateAvailable?.notes" class="text-xs text-muted whitespace-pre-line">
+                        {{ updateAvailable.notes }}
+                    </p>
+                </div>
+            </template>
+        </UModal>
     </div>
 </template>

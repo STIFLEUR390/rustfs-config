@@ -37,8 +37,7 @@
       "icons/icon.ico"
     ],
     "shortDescription": "Configure RustFS buckets, scoped IAM users and .env files",
-    "category": "DeveloperTool",
-    "createUpdaterArtifacts": true
+    "category": "DeveloperTool"
   },
   "plugins": {
     "updater": {
