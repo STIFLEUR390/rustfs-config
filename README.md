@@ -43,6 +43,26 @@ bun run tauri:build   # binaire de production
 Scripts utiles : `bun run dev` (navigateur seul), `bun run generate` (build statique
 consommé par Tauri via `frontendDist: ../dist`).
 
+### Construire les paquets Linux
+
+`bun run tauri:build` produit `.deb`, `.rpm` et `.AppImage` dans
+`src-tauri/target/release/bundle/{deb,rpm,appimage}/`.
+
+Sur une machine où Homebrew masque les outils système (glib/gio de brew en tête de `PATH`),
+le bundling AppImage échoue dans le plugin `linuxdeploy` (`cp: cannot stat ''` dans `gtk`).
+Deux ajustements suffisent : faire exécuter les AppImage outils sans FUSE et rendre les
+outils système prioritaires.
+
+```bash
+APPIMAGE_EXTRACT_AND_RUN=1 \
+PATH="/usr/local/bin:/usr/bin:/bin:$HOME/.cargo/bin:$HOME/.bun/bin:/usr/sbin:/sbin" \
+bun run tauri:build -- --bundles appimage
+```
+
+Sortie vérifiée : `RustFS Config_0.1.0_amd64.AppImage`, ~94 Mio, runtime AppImage type 2.
+L'AppImage embarque `libwebkit2gtk-4.1` ; `--appimage-extract-and-run` permet de la tester
+sans FUSE.
+
 Tests backend sans interface (pas besoin de GTK/WebKit) :
 
 ```bash
