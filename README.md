@@ -102,9 +102,15 @@ L'app ne requiert ni `rc` ni variable d'environnement : elle parle directement �
 `~/.config/rc/store.json` (Linux), `~/Library/Application Support/rc/store.json` (macOS)
 ou `%APPDATA%\rc\store.json` (Windows). Le backend Rust est compilé dans le binaire.
 
-Avant une distribution hors GitHub, remplacer les icônes de `src-tauri/icons/` et
-configurer les clés de signature (`TAURI_SIGNING_PRIVATE_KEY` et
-`TAURI_SIGNING_PRIVATE_KEY_PASSWORD`) pour l'updater.
+Les icônes de `src-tauri/icons/` sont générées depuis `app-icon.png` (1024×1024, fond
+`#15263A`, pile de couches teal→ambre et bouclier) avec :
+
+```bash
+bunx tauri icon app-icon.png   # régénère 32/64/128/256/512, .ico, .icns et les logos Store
+```
+
+Avant une distribution hors GitHub, configurer les clés de signature
+(`TAURI_SIGNING_PRIVATE_KEY` et `TAURI_SIGNING_PRIVATE_KEY_PASSWORD`) pour l'updater.
 
 ## Désinstallation
 
