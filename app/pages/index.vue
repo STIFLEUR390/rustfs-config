@@ -75,7 +75,7 @@ const crumbs = computed(() =>
 
 const listError = computed(() => (error.value as {message?: string; hint?: string} | null))
 
-watch([tab, activeBucketName], ([value]) => {
+watch([tab, activeBucketName, activePrefix], ([value]) => {
     if (value === 'objects' && activeInstance.value) {
         loadObjects(activeInstance.value.id)
     }

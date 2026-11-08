@@ -136,9 +136,11 @@ pub async fn verify(instance_id: &str, bucket: &str, credential_id: &str) -> App
 
     // 3. Anonymous read: denied on the private probe, allowed on a declared
     // public prefix only once the bucket policy is managed by RustFS Config.
+    // A 404 also counts as denied: RustFS answers 404 for a missing key, and
+    // either way the object is not anonymously readable.
     if let Some(url) = object_url(&root, bucket, &private_key) {
         match anonymous.get(&url).send().await {
-            Ok(response) if response.status().as_u16() == 403 => {
+            Ok(response) if matches!(response.status().as_u16(), 403 | 404) => {
                 checks.push(Check::pass("private_read", None))
             }
             Ok(response) => checks.push(Check::fail(
@@ -162,10 +164,19 @@ pub async fn verify(instance_id: &str, bucket: &str, credential_id: &str) -> App
             Ok(response) if response.status().as_u16() == 403 => {
                 checks.push(Check::pass("anonymous_list", None))
             }
-            Ok(response) => checks.push(Check::fail(
-                "anonymous_list",
-                format!("ListObjects anonyme → {}", response.status()),
-            )),
+            Ok(response) => {
+                let sids = public_list_sids(&root_s3, bucket).await;
+                let detail = if sids.is_empty() {
+                    format!("ListObjects anonyme → {}", response.status())
+                } else {
+                    format!(
+                        "ListObjects anonyme → {} ; la bucket policy existante autorise s3:ListBucket sans authentification ({})",
+                        response.status(),
+                        sids.join(", ")
+                    )
+                };
+                checks.push(Check::fail("anonymous_list", detail))
+            }
             Err(err) => checks.push(Check::fail("anonymous_list", err.to_string())),
         }
     } else {
@@ -245,6 +256,54 @@ async fn public_read_check(
     };
     let _ = scoped_s3.delete_object(&bucket_entry.name, &key).await;
     result
+}
+
+/// Names the existing statements that grant anonymous `s3:ListBucket`, so a
+/// failed listing check points at the pre-existing policy rather than the app.
+async fn public_list_sids(root_s3: &S3Client, bucket: &str) -> Vec<String> {
+    let Ok(document) = root_s3.get_bucket_policy(bucket).await else {
+        return Vec::new();
+    };
+    let Some(statements) = document.get("Statement").and_then(|value| value.as_array()) else {
+        return Vec::new();
+    };
+    statements
+        .iter()
+        .filter(|statement| {
+            let allow = statement.get("Effect").and_then(|value| value.as_str()) == Some("Allow");
+            let public = match statement.get("Principal") {
+                Some(serde_json::Value::String(value)) => value == "*",
+                Some(serde_json::Value::Object(map)) => map
+                    .get("AWS")
+                    .map(|value| match value {
+                        serde_json::Value::String(value) => value == "*",
+                        serde_json::Value::Array(items) => {
+                            items.iter().any(|item| item.as_str() == Some("*"))
+                        }
+                        _ => false,
+                    })
+                    .unwrap_or(false),
+                _ => false,
+            };
+            let lists = match statement.get("Action") {
+                Some(serde_json::Value::String(action)) => action.contains("ListBucket"),
+                Some(serde_json::Value::Array(actions)) => actions.iter().any(|action| {
+                    action
+                        .as_str()
+                        .is_some_and(|value| value.contains("ListBucket"))
+                }),
+                _ => false,
+            };
+            allow && public && lists
+        })
+        .map(|statement| {
+            statement
+                .get("Sid")
+                .and_then(|value| value.as_str())
+                .unwrap_or("(sans Sid)")
+                .to_string()
+        })
+        .collect()
 }
 
 async fn policy_check(root_s3: &S3Client, bucket: &str, entry: &Bucket) -> Check {
