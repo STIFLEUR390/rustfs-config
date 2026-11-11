@@ -25,3 +25,8 @@ logs
 
 # Local cargo mirror config (machine-specific)
 .cargo/
+
+# Local agent tooling and private project memory
+.ai-memory/
+.autohand/
+.claude/
