@@ -339,7 +339,12 @@ aws --profile kwiktalk --endpoint-url https://storage.applix.fr s3 ls s3://kwikt
 - **Transport** : TLS vérifié par défaut ; l'option « ignorer la vérification » est
   réservée aux instances locales et affichée en rouge.
 - **CSP** : remplacer `csp: null` par une politique stricte (`default-src 'self'`).
-- **Pas de télémétrie**, pas d'appel réseau hors de l'instance configurée.
+- **Rapports d'erreur** : seuls appels sortants hors de l'instance configurée. Frontend et
+  backend envoient leurs erreurs non gérées à l'instance Sentry auto-hébergée
+  (`rustrak-api.applix.fr`, même DSN dans `app/plugins/sentry.client.ts` et
+  `src-tauri/src/lib.rs`), avec `send_default_pii` désactivé : aucun endpoint, nom de bucket,
+  clé ni secret n'est transmis. Le DSN est public par nature ; toute autre télémétrie reste
+  interdite.
 - Les actions destructives (suppression de bucket, révocation de credential, suppression
   d'objet) demandent une confirmation nommée, jamais un simple « OK ».
 

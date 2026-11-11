@@ -1,4 +1,4 @@
-import {invoke} from '@tauri-apps/api/core'
+import {call} from '~/utils/api'
 
 export interface Credential {
     id: string
@@ -38,7 +38,7 @@ export function useCredentials() {
         loading.value = true
         error.value = null
         try {
-            credentials.value = await invoke<Credential[]>('list_credentials', {instanceId, bucket})
+            credentials.value = await call<Credential[]>('list_credentials', {instanceId, bucket})
         } catch (cause) {
             error.value = cause as {message?: string; hint?: string}
         } finally {
@@ -47,7 +47,7 @@ export function useCredentials() {
     }
 
     async function create(instanceId: string, bucket: string, mode: CredentialMode, accessKey?: string) {
-        const issued = await invoke<IssuedCredential>('create_credential', {
+        const issued = await call<IssuedCredential>('create_credential', {
             instanceId,
             bucket,
             mode,
@@ -58,13 +58,13 @@ export function useCredentials() {
     }
 
     async function adopt(instanceId: string, bucket: string, accessKey: string) {
-        const issued = await invoke<IssuedCredential>('adopt_credential', {instanceId, bucket, accessKey})
+        const issued = await call<IssuedCredential>('adopt_credential', {instanceId, bucket, accessKey})
         await load(instanceId, bucket)
         return issued
     }
 
     async function rotate(instanceId: string, credential: Credential) {
-        const secret = await invoke<string>('rotate_credential', {
+        const secret = await call<string>('rotate_credential', {
             instanceId,
             credentialId: credential.id,
         })
@@ -73,12 +73,12 @@ export function useCredentials() {
     }
 
     async function revoke(instanceId: string, credential: Credential) {
-        await invoke('revoke_credential', {instanceId, credentialId: credential.id})
+        await call('revoke_credential', {instanceId, credentialId: credential.id})
         await load(instanceId, credential.bucket)
     }
 
     async function verify(instanceId: string, bucket: string, credential: Credential) {
-        return await invoke<IsolationReport>('verify_isolation', {
+        return await call<IsolationReport>('verify_isolation', {
             instanceId,
             bucket,
             credentialId: credential.id,

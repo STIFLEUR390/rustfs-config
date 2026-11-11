@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {invoke} from '@tauri-apps/api/core'
+import {call} from '~/utils/api'
 import type {CredentialMode} from '~/composables/useCredentials'
 
 const props = defineProps<{instanceId: string | null}>()
@@ -180,7 +180,7 @@ async function run() {
         }
         emit('done')
         if (issued.secret) {
-            envText.value = await invoke<string>('generate_env', {
+            envText.value = await call<string>('generate_env', {
                 instanceId: props.instanceId,
                 credentialId: issued.credential.id,
                 format: 'laravel',

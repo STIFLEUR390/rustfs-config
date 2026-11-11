@@ -1,4 +1,4 @@
-import {invoke} from '@tauri-apps/api/core'
+import {call} from '~/utils/api'
 
 export type ConnectionStatus = 'ok' | 'error' | 'unknown'
 export type KeyLevel = 'root' | 'admin' | 'limited' | 'invalid'
@@ -64,7 +64,7 @@ export function useInstances() {
 
     async function loadInstances() {
         try {
-            instances.value = await invoke<Instance[]>('list_instances')
+            instances.value = await call<Instance[]>('list_instances')
             loadError.value = null
         } catch (error) {
             instances.value = []
@@ -93,7 +93,7 @@ export function useInstances() {
             adminAccessKeySuffix: '',
             lastCheck: input.lastCheck ?? null,
         }
-        const saved = await invoke<Instance>('save_instance', {
+        const saved = await call<Instance>('save_instance', {
             instance,
             accessKey: accessKey || null,
             secretKey: secretKey || null,
@@ -104,12 +104,12 @@ export function useInstances() {
     }
 
     async function deleteInstance(id: string) {
-        await invoke('delete_instance', {id})
+        await call('delete_instance', {id})
         await loadInstances()
     }
 
     function testInstance(connection: Connection) {
-        return invoke<InstanceTest>('test_instance', {connection})
+        return call<InstanceTest>('test_instance', {connection})
     }
 
     return {

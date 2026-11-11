@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {invoke} from '@tauri-apps/api/core'
+import {call} from '~/utils/api'
 import {save as saveDialog} from '@tauri-apps/plugin-dialog'
 import {writeText} from '@tauri-apps/plugin-clipboard-manager'
 import type {Credential} from '~/composables/useCredentials'
@@ -53,7 +53,7 @@ async function generate() {
     error.value = null
     saved.value = ''
     try {
-        text.value = await invoke<string>('generate_env', {
+        text.value = await call<string>('generate_env', {
             instanceId: props.instanceId,
             credentialId: credentialId.value,
             format: format.value,
@@ -86,7 +86,7 @@ async function saveAs(allowOverwrite = false) {
     error.value = null
     saved.value = ''
     try {
-        saved.value = await invoke<string>('write_env_file', {
+        saved.value = await call<string>('write_env_file', {
             instanceId: props.instanceId,
             credentialId: credentialId.value,
             format: format.value,

@@ -22,6 +22,18 @@ pub mod verify;
 #[cfg(feature = "gui")]
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
+    // `_guard` flushes pending events when the process exits; it must outlive the app.
+    let _sentry = sentry::init((
+        "https://af069846a5284527a6a2ffbcf327a2c4@rustrak-api.applix.fr/6",
+        sentry::ClientOptions {
+            release: sentry::release_name!(),
+            environment: Some(if cfg!(debug_assertions) { "development" } else { "production" }.into()),
+            // No PII: endpoints, bucket names and credentials are user data (AGENTS.md).
+            send_default_pii: false,
+            ..Default::default()
+        },
+    ));
+
     let builder = tauri::Builder::default();
 
     #[cfg(desktop)]

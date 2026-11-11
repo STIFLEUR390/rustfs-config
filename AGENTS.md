@@ -122,7 +122,10 @@ L'instance de test est locale : `http://127.0.0.1:9000`, credentials `lerd` / `l
 - Pas de contenu distant chargé dans la webview, pas de `withGlobalTauri` en prod si
   inutile.
 - Updater : clé de signature obligatoire avant distribution.
-- Jamais de télémétrie ni d'appel réseau hors instance configurée.
+- Pas de télémétrie produit. Seule sortie réseau hors instance configurée : les erreurs
+  non gérées envoyées à l'instance Sentry auto-hébergée (DSN dans `app/plugins/sentry.client.ts`
+  et `src-tauri/src/lib.rs`, `send_default_pii` désactivé). Toute erreur de commande passe par
+  `app/utils/api.ts` (`call()`), jamais `invoke()` directement.
 
 ## Pièges RustFS à ne pas réintroduire
 

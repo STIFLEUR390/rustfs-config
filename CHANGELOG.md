@@ -2,7 +2,17 @@
 
 Toutes les évolutions notables de RustFS Config. Format : [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/), versions [SemVer](https://semver.org/lang/fr/).
 
+## [Unreleased]
+
+### Ajouté
+
+- Rapports d'erreur Sentry pour le frontend (`@sentry/vue`) et le backend Rust (`sentry` 0.42) :
+  erreurs de commande, exceptions et panics, sans donnée personnelle.
+- Dépôt public : la mémoire projet locale et les outils d'agents propres à la machine ne sont
+  plus suivis par git.
+
 ## [0.1.0] — 2026-11-07
+
 
 ### Ajouté
 

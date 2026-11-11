@@ -1,4 +1,4 @@
-import {invoke} from '@tauri-apps/api/core'
+import {call} from '~/utils/api'
 
 export interface ObjectEntry {
     key: string
@@ -76,7 +76,7 @@ export function useBucket() {
     }
 
     async function loadBuckets(instanceId: string) {
-        const names = await invoke<string[]>('list_instance_buckets', {instanceId})
+        const names = await call<string[]>('list_instance_buckets', {instanceId})
         bucketNames.value = {...bucketNames.value, [instanceId]: names}
         if (!names.includes(activeBucketName.value ?? '')) {
             selectBucket(names[0] ?? null)
@@ -103,7 +103,7 @@ export function useBucket() {
         loading.value = true
         error.value = null
         try {
-            const next = await invoke<ObjectPage>('list_instance_objects', {
+            const next = await call<ObjectPage>('list_instance_objects', {
                 instanceId,
                 bucket,
                 prefix: activePrefix.value || null,
@@ -126,13 +126,13 @@ export function useBucket() {
     }
 
     async function createBucket(instanceId: string, name: string) {
-        await invoke('create_instance_bucket', {instanceId, bucket: name})
+        await call('create_instance_bucket', {instanceId, bucket: name})
         await loadBuckets(instanceId)
         selectBucket(name)
     }
 
     async function deleteBucket(instanceId: string, name: string) {
-        await invoke('delete_instance_bucket', {instanceId, bucket: name})
+        await call('delete_instance_bucket', {instanceId, bucket: name})
         await loadBuckets(instanceId)
     }
 
@@ -140,12 +140,12 @@ export function useBucket() {
         const bucket = activeBucketName.value
         if (!bucket) return
         const name = key ?? `${activePrefix.value}${path.split(/[\\/]/).pop() ?? path}`
-        await invoke('upload_instance_object', {instanceId, bucket, key: name, path})
+        await call('upload_instance_object', {instanceId, bucket, key: name, path})
         await loadObjects(instanceId)
     }
 
     function download(instanceId: string, key: string, path: string) {
-        return invoke('download_instance_object', {
+        return call('download_instance_object', {
             instanceId,
             bucket: activeBucketName.value,
             key,
@@ -154,7 +154,7 @@ export function useBucket() {
     }
 
     async function deleteObject(instanceId: string, key: string) {
-        await invoke('delete_instance_object', {
+        await call('delete_instance_object', {
             instanceId,
             bucket: activeBucketName.value,
             key,
@@ -163,7 +163,7 @@ export function useBucket() {
     }
 
     function bucketState(instanceId: string, bucket: string) {
-        return invoke<{
+        return call<{
             publicPrefixes: string[]
             lifecycle: {prefix: string; expireDays: number}[]
             managed: {bucketPolicy: boolean; lifecycle: boolean}
@@ -177,7 +177,7 @@ export function useBucket() {
         versioning: boolean | null,
         cors: CorsSpec | null,
     ) {
-        return invoke<BucketConfigPlan>('plan_bucket_config', {
+        return call<BucketConfigPlan>('plan_bucket_config', {
             instanceId,
             bucket,
             rules,
@@ -194,7 +194,7 @@ export function useBucket() {
         cors: CorsSpec | null,
         confirmCors = false,
     ) {
-        return invoke<BucketConfigPlan>('apply_bucket_config', {
+        return call<BucketConfigPlan>('apply_bucket_config', {
             instanceId,
             bucket,
             rules,
@@ -205,7 +205,7 @@ export function useBucket() {
     }
 
     function planPolicy(instanceId: string, bucket: string, prefixes: string[]) {
-        return invoke<PolicyPlan>('plan_bucket_policy', {instanceId, bucket, prefixes})
+        return call<PolicyPlan>('plan_bucket_policy', {instanceId, bucket, prefixes})
     }
 
     function applyPolicy(
@@ -214,7 +214,7 @@ export function useBucket() {
         prefixes: string[],
         allowRoot = false,
     ) {
-        return invoke<PolicyPlan>('apply_bucket_policy', {
+        return call<PolicyPlan>('apply_bucket_policy', {
             instanceId,
             bucket,
             prefixes,
