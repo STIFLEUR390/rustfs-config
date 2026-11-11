@@ -22,7 +22,7 @@ jobs:
           # The runners' apt mirror intermittently fails to resolve. The keyring-backed
           # tests skip themselves when these packages are missing, so this is best effort.
           sudo apt-get update -o Acquire::Retries=2 -o Acquire::http::Timeout=20 &&
-            sudo apt-get install -y -o Acquire::http::Timeout=20 gnome-keyring dbus-x11 ||
+            sudo apt-get install -y -o Acquire::http::Timeout=20 libdbus-1-dev gnome-keyring dbus-x11 ||
             echo "keyring packages unavailable"
 
       - name: Start RustFS
