@@ -2,6 +2,15 @@
 
 Toutes les évolutions notables de RustFS Config. Format : [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/), versions [SemVer](https://semver.org/lang/fr/).
 
+## [Unreleased]
+
+### Corrigé
+
+- CI : la sonde de démarrage de RustFS exigeait une réponse 2xx alors que l'API répond `403`
+  sur `/`, donc la suite d'intégration ne s'exécutait jamais sur GitHub Actions. La sonde
+  accepte désormais toute réponse HTTP, `libdbus-1-dev` est installé et le trousseau est
+  déverrouillé (`gnome-keyring-daemon --unlock`) avant les tests.
+
 ## [0.1.1] — 2026-11-11
 
 ### Ajouté
