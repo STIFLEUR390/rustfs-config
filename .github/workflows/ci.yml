@@ -19,11 +19,18 @@ jobs:
 
       - name: Install test dependencies
         run: |
-          # The runners' apt mirror intermittently fails to resolve. The keyring-backed
-          # tests skip themselves when these packages are missing, so this is best effort.
-          sudo apt-get update -o Acquire::Retries=2 -o Acquire::http::Timeout=20 &&
-            sudo apt-get install -y -o Acquire::http::Timeout=20 libdbus-1-dev gnome-keyring dbus-x11 ||
-            echo "keyring packages unavailable"
+          # The runners' apt mirror intermittently fails to resolve (azure.archive.ubuntu.com);
+          # retry briefly, then fail loudly rather than build without the keyring stack.
+          for attempt in 1 2 3 4 5; do
+            if sudo apt-get update -o Acquire::Retries=1 -o Acquire::http::Timeout=15 &&
+              sudo apt-get install -y -o Acquire::Retries=1 -o Acquire::http::Timeout=15 \
+                libdbus-1-dev gnome-keyring dbus-x11; then
+              exit 0
+            fi
+            sleep $((attempt * 15))
+          done
+          echo "apt-get failed after 5 attempts" >&2
+          exit 1
 
       - name: Start RustFS
         run: |
