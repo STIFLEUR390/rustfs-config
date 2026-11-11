@@ -14,6 +14,7 @@ pub mod instances;
 pub mod lifecycle;
 pub mod policy;
 pub mod qualify;
+pub mod redact;
 pub mod s3;
 pub mod secrets;
 pub mod store;
@@ -22,17 +23,30 @@ pub mod verify;
 #[cfg(feature = "gui")]
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
-    // `_guard` flushes pending events when the process exits; it must outlive the app.
+    // `_guard` flushes pending events and logs when the process exits; it must outlive the app.
     let _sentry = sentry::init((
         "https://af069846a5284527a6a2ffbcf327a2c4@rustrak-api.applix.fr/6",
         sentry::ClientOptions {
             release: sentry::release_name!(),
-            environment: Some(if cfg!(debug_assertions) { "development" } else { "production" }.into()),
+            environment: Some(
+                if cfg!(debug_assertions) {
+                    "development"
+                } else {
+                    "production"
+                }
+                .into(),
+            ),
             // No PII: endpoints, bucket names and credentials are user data (AGENTS.md).
             send_default_pii: false,
+            // Belt and braces: `redact` masks keys the AWS SDK may quote in a message.
+            before_send: Some(std::sync::Arc::new(|event| {
+                Some(redact::scrub_event(event))
+            })),
+            before_send_log: Some(std::sync::Arc::new(|log| Some(redact::scrub_log(log)))),
             ..Default::default()
         },
     ));
+    sentry::logger_info!("app started");
 
     let builder = tauri::Builder::default();
 

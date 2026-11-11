@@ -7,7 +7,9 @@ Toutes les évolutions notables de RustFS Config. Format : [Keep a Changelog](ht
 ### Ajouté
 
 - Rapports d'erreur Sentry pour le frontend (`@sentry/vue`) et le backend Rust (`sentry` 0.42) :
-  erreurs de commande, exceptions et panics, sans donnée personnelle.
+  erreurs de commande, exceptions, panics et logs, sans donnée personnelle.
+- Masquage des secrets avant envoi : clés AWS (`AKIA…`), paramètres de signature
+  `x-amz-*`, en-têtes `Authorization` et champs `password`/`*_key` sont remplacés par `***`.
 - Dépôt public : la mémoire projet locale et les outils d'agents propres à la machine ne sont
   plus suivis par git.
 
