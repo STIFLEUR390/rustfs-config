@@ -2,7 +2,10 @@
 
 Toutes les évolutions notables de RustFS Config. Format : [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/), versions [SemVer](https://semver.org/lang/fr/).
 
-## [Unreleased]
+## [0.1.2] — 2026-11-11
+
+Aucun changement de code applicatif : cette version sert à vérifier la chaîne de mise à jour
+depuis la 0.1.1 installée.
 
 ### Corrigé
 
