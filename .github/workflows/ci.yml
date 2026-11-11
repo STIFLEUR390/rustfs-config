@@ -19,8 +19,12 @@ jobs:
 
       - name: Install test dependencies
         run: |
-          sudo apt-get update
-          sudo apt-get install -y gnome-keyring dbus-x11
+          # The runners' apt mirror intermittently fails to resolve; retry before giving up.
+          for attempt in 1 2 3; do
+            sudo apt-get update -o Acquire::Retries=5 &&
+              sudo apt-get install -y gnome-keyring dbus-x11 && break
+            sleep 20
+          done
 
       - name: Start RustFS
         run: |
