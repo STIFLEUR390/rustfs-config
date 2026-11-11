@@ -50,11 +50,15 @@ jobs:
           RUSTFS_TEST_SECRET_KEY: rustfsadmin
         run: |
           cd src-tauri
-          if command -v gnome-keyring-daemon >/dev/null && command -v dbus-run-session >/dev/null; then
-            dbus-run-session -- bash -c 'echo -n "" | gnome-keyring-daemon --unlock --components=secrets >/dev/null; RC_TEST_KEYRING=1 cargo test --no-default-features --all-targets'
-          else
+          # Headless Secret Service: the daemon must create and unlock a login keyring first,
+          # otherwise every keyring call fails with "no result found".
+          dbus-run-session -- bash -c '
+            if command -v gnome-keyring-daemon >/dev/null; then
+              gnome-keyring-daemon --components=secrets --daemonize --unlock <<< "foobar"
+              export RC_TEST_KEYRING=1
+            fi
             cargo test --no-default-features --all-targets
-          fi
+          '
 
       - name: Lint
         run: cd src-tauri && cargo clippy --all-targets --no-default-features -- -D warnings
